@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README · jitmodel</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="../index.html" title="jitmodel — how it was built"><img class="logo" src="../assets/jit-logo.png" alt="Just In-Time Energy Company"></a>
+    <nav aria-label="Documents">
+      <a href="../index.html">Home</a>
+      <a href="transcript.html">Transcript</a>
+      <a href="README.html">README</a>
+      <a href="PLAN.html">Plan</a>
+      <a href="DECISIONS.html">Decisions</a>
+      <a href="VALIDATION.html">Validation</a>
+      <a href="CLAUDE.html">CLAUDE.md</a>
+    </nav>
+  </div>
+</header>
+<div class="doc-layout has-toc">
+<nav id="TOC" aria-label="Contents">
+<p class="toc-title">Contents</p>
+<ul>
+<li><a href="#jitmodel" id="toc-jitmodel">jitmodel</a>
+<ul>
+<li><a href="#setup" id="toc-setup">Setup</a></li>
+<li><a href="#using-it" id="toc-using-it">Using it</a></li>
+<li><a href="#architecture" id="toc-architecture">Architecture</a></li>
+<li><a href="#validation" id="toc-validation">Validation</a></li>
+<li><a href="#deploying-to-cloud-run"
+id="toc-deploying-to-cloud-run">Deploying to Cloud Run</a></li>
+<li><a href="#limitations" id="toc-limitations">Limitations</a></li>
+<li><a href="#repository-map" id="toc-repository-map">Repository
+map</a></li>
+</ul></li>
+</ul>
+</nav>
+<main class="doc">
+<p class="source-note">Rendered from <code>README.md</code> in the jitmodel repository, as of September 26, 2026 (commit 43f6277).</p>
+<h1 id="jitmodel">jitmodel</h1>
+<p>A model and web app for the <strong>re-condensing cryogenic power
+cycle</strong> of US Patent 11,598,261 (Just In Time Energy): LNG or
+liquid air is pumped to supercritical pressure, heated and expanded,
+then <strong>re-condensed against the incoming pumped liquid</strong> in
+a shared gasifying/condensing heat exchanger (E-1), re-pumped, re-heated
+and expanded a second time.</p>
+<p>It covers design-point solves of all six patent figures (Figs. 1, 2,
+3, 4, 4A, 5), comparison with a single-expansion baseline, parameter
+sweeps and optimization, and hourly dispatch economics. It is a
+<strong>dev instance only</strong>: a single-process Flask server with
+no authentication.</p>
+<blockquote>
+<p><strong>Freedom to operate.</strong> This project models a patented
+process (US 11,598,261). Commercial use of the process, or of results
+from this model, may require a license from the patent holder and legal
+review.</p>
+</blockquote>
+<h2 id="setup">Setup</h2>
+<p>Debian 13 (or similar). System packages, installed once by an
+administrator:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> git make build-essential ca-certificates python3 python3-venv python3-pip python3-dev <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    poppler-utils chromium</span></code></pre></div>
+<p>Then, inside the repository (nothing is installed outside it):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> setup      <span class="co"># creates .venv (Python 3.13) and installs the package with its dev tools; enables .githooks</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> dev        <span class="co"># http://0.0.0.0:5001 — pages, static files and JSON API on one port (dev only, no auth)</span></span></code></pre></div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>make test</code></td>
+<td>Test suite (about 160 tests, ~1.5 min; excludes the browser
+test)</td>
+</tr>
+<tr class="even">
+<td><code>make e2e</code></td>
+<td>End-to-end browser test (Playwright driving the system
+<code>/usr/bin/chromium</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>make lint</code></td>
+<td><code>ruff check</code>, <code>ruff format --check</code>,
+<code>mypy --strict jitmodel/core</code> (also the pre-commit hook)</td>
+</tr>
+<tr class="even">
+<td><code>make format</code></td>
+<td>Apply ruff formatting and fixes</td>
+</tr>
+<tr class="odd">
+<td><code>make validation</code></td>
+<td>Re-solve every preset and regenerate the summary in <a
+href="VALIDATION.html"><code>docs/VALIDATION.md</code></a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every Python package is vetted on PyPI before it is added (see <a
+href="CLAUDE.html"><code>CLAUDE.md</code></a>). Plotly.js and the IBM
+Plex fonts are vendored under <code>jitmodel/web/static/</code>, with
+sources and SHA-256 hashes in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a> (D75). Nothing
+loads from a CDN at runtime.</p>
+<h2 id="using-it">Using it</h2>
+<p>The <strong>Instructions</strong> tab in the app explains the cycle,
+why it matters, and how to use every tab, including the optimizer. In
+brief:</p>
+<ul>
+<li><strong>Flowsheet:</strong> pick a preset, adjust the main inputs
+with the sliders (the E-1 intermediate pressure and its T–Q curve update
+live), open <strong>All inputs</strong> for the rest, and press
+<strong>Solve cycle</strong>. The diagram colors streams by temperature;
+click a unit to inspect it. Results show net power, pumps, turbines,
+heat rate, specific output and the gain over the single-expansion
+baseline. <strong>Save case</strong> / <strong>Load a saved
+case</strong> keep inputs as JSON.</li>
+<li><strong>Heat exchangers:</strong> T–Q profiles of every exchanger
+with its pinch, and a T–s diagram with the saturation dome.</li>
+<li><strong>Sweeps:</strong> 1-D or 2-D sweeps over any numeric input
+(line chart or heatmap), and multi-start optimization of net power or
+specific output. Click a point to load it into the flowsheet.</li>
+<li><strong>Dispatch &amp; economics:</strong> upload an hourly price
+CSV (one <code>price</code> column, $/MWh), set the tank and
+liquefaction inputs, and choose a rule: price threshold, fixed daily
+windows, or perfect-foresight LP.</li>
+<li><strong>Units:</strong> US customary (the patent’s units) or SI,
+toggled in the header. Internally everything is SI, and conversion
+happens only in <code>jitmodel/units.py</code>.</li>
+<li><strong>Exports:</strong> every result has CSV and JSON exports.
+Results are stored in <code>var/results/</code> (git-ignored).</li>
+</ul>
+<p>Every action works without JavaScript; scripts only add live preview,
+charts, click-to-inspect and job polling.</p>
+<h2 id="architecture">Architecture</h2>
+<div class="mermaid-wrap"><pre class="mermaid">flowchart TB
+  subgraph Browser
+    pages["Jinja pages + forms"]
+    js["small ES modules: sliders, live preview, charts (vendored Plotly)"]
+  end
+  subgraph Flask["Flask app (port 5001)"]
+    routes["web/pages.py — HTML routes (Post/Redirect/Get)"]
+    api["web/api.py — /api/cases, /api/intermediate, /api/jobs"]
+    forms["web/forms.py + units.py — display units ⇄ SI"]
+    diagram["web/diagram.py — server-rendered SVG flowsheet"]
+    jobs["web/jobs.py — thread pool + forkserver process pool"]
+    store[("var/results/*.json")]
+  end
+  subgraph Model["jitmodel (SI throughout)"]
+    cases["cases/ — Fig. 1-5 presets, shared double-expansion runner, ORC design"]
+    core["core/ — Stream, unit operations, discretized HX + pinch, intermediate-pressure solve, flowsheet solver"]
+    props["props/ — CoolProp HEOS (methane, pseudo-pure air), ideal-gas mixtures"]
+    studies["studies/ — sweeps, SLSQP optimization, dispatch LP (HiGHS), validation"]
+  end
+  pages --&gt; routes
+  js --&gt; api
+  routes --&gt; forms --&gt; cases
+  routes --&gt; diagram
+  routes --&gt; jobs --&gt; cases
+  jobs --&gt; studies --&gt; cases
+  jobs --&gt; store
+  api --&gt; core
+  cases --&gt; core --&gt; props</pre></div>
+<p>How a solve works:</p>
+<ol type="1">
+<li>The <strong>intermediate pressure</strong> is the lowest pressure at
+which the T-1 exhaust fully re-condenses in E-1 while the minimum
+temperature difference along the discretized exchanger stays ≥ ΔT_min.
+The pinch sits just above the hot stream’s dew point, against the
+supercritical cold stream’s heat-capacity peak
+(<code>core/intermediate.py</code>).</li>
+<li>Because that pressure sits upstream of T-1, it is solved in an
+<strong>outer design loop</strong> around the flowsheet.</li>
+<li>The <strong>flowsheet</strong> is sequential-modular: automatic
+minimum tear-stream selection, bounded Wegstein iteration with
+backtracking, and a Broyden fallback
+(<code>core/flowsheet.py</code>).</li>
+<li>A converged flowsheet with any <strong>temperature cross</strong> is
+reported as infeasible, never as a result.</li>
+</ol>
+<h2 id="validation">Validation</h2>
+<p><a href="VALIDATION.html"><code>docs/VALIDATION.md</code></a> holds
+the per-preset checks against the patent (regenerate with
+<code>make validation</code>). At default inputs every preset:</p>
+<ul>
+<li>re-condenses within ±10 % of the patent’s intermediate pressure
+(+0.4 % to +1.5 %; liquid air at −228.8 °F against the patent’s ≈−230
+°F);</li>
+<li>closes its energy balance to better than 1e-11;</li>
+<li>beats its single-expansion baseline.</li>
+</ul>
+<p>Every modeling choice, default and source is logged in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a> (D1-D81).</p>
+<h2 id="deploying-to-cloud-run">Deploying to Cloud Run</h2>
+<p>The current deployment (project, region, access) and the step-by-step
+update routine are in <code>docs/DEPLOY.md</code>.</p>
+<ul>
+<li><p><code>Dockerfile</code> builds the image: Python 3.13, the pinned
+runtime packages in <code>requirements-deploy.txt</code>, and gunicorn
+serving the app on <code>$PORT</code>.</p></li>
+<li><p><code>cloudbuild.yaml</code> builds the image in Cloud Build,
+pushes it to Artifact Registry and deploys it to Cloud Run:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> builds submit <span class="at">--config</span> cloudbuild.yaml <span class="at">--substitutions</span><span class="op">=</span>_REGION=us-central1</span></code></pre></div></li>
+<li><p>The service is private by default. Pass
+<code>_ACCESS=--allow-unauthenticated</code> in
+<code>--substitutions</code> for a public URL.</p></li>
+<li><p>It runs as one instance with 2 vCPU and 2 GiB, and scales to zero
+when idle. Saved results are lost when the instance stops
+(D84).</p></li>
+<li><p>When runtime packages are upgraded in <code>.venv</code>, update
+the pins in <code>requirements-deploy.txt</code> to match.</p></li>
+</ul>
+<h2 id="limitations">Limitations</h2>
+<ul>
+<li><strong>Fluids.</strong> LNG is pure methane, which understates the
+condensing glide of real LNG. Air is CoolProp’s pseudo-pure model: it
+has a bubble/dew glide but is not a true mixture, and its two-phase
+flashes need workarounds (D21). Methane is extrapolated above 625 K and
+states there are flagged (D20).</li>
+<li><strong>No pressure drops</strong> in exchangers, piping or burners.
+Heat exchangers are specified by duty or approach; UA rating is not
+modeled.</li>
+<li><strong>Heat sources are boundary streams.</strong> Gas turbines and
+engines are not modeled as machines (their exhaust, coolant and air are
+inputs), so engine-side effects such as removing a turbocharger are not
+captured. Default flows and temperatures are generic, feasible sizings
+(not vendor data and not optimized). Several defaults leave heat unused;
+the optimizer is the tool for rebalancing them.</li>
+<li><strong>Assumed arrangements.</strong> The Fig. 4 ORC is not shown
+in the patent; a methane ORC is assumed (D49). Fig. 4A omits the ORC
+(D58). Exhaust water condensation is not modeled; exchangers stop at the
+dew point where flagged (D59).</li>
+<li><strong>The baseline</strong> is the plan’s pump → heat → single
+expansion, with no recuperator, ORC or fuel. The gains depend on that
+definition, so compare fuel-burning cases by heat rate as well (D38, <a
+href="VALIDATION.html">VALIDATION.md</a>).</li>
+<li><strong>Dispatch values electricity only.</strong> Part-load scales
+linearly; the value of stored gas (the point of the patent’s LNG
+gas-and-power storage cases) is not counted (D65). The test price file
+is synthetic, not market data.</li>
+<li><strong>Dev instance only:</strong> single process, no
+authentication, and Flask’s debugger is enabled on 0.0.0.0. Use on a
+trusted network.</li>
+</ul>
+<h2 id="repository-map">Repository map</h2>
+<pre><code>jitmodel/      props/ core/ cases/ studies/ web/ units.py schemas.py heat_sources.py
+tests/         unit, property-based, preset, web and e2e tests; fixtures/ (synthetic prices)
+docs/          US11598261.pdf, DECISIONS.md, VALIDATION.md
+PLAN.md        the implementation plan; CLAUDE.md the working rules</code></pre>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <p>Copyright 2026 Just In Time Energy Company.</p>
+  </div>
+</footer>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+</script>
+</body>
+</html>

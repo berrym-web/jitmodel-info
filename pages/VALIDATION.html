@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation · jitmodel</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="../index.html" title="jitmodel — how it was built"><img class="logo" src="../assets/jit-logo.png" alt="Just In-Time Energy Company"></a>
+    <nav aria-label="Documents">
+      <a href="../index.html">Home</a>
+      <a href="transcript.html">Transcript</a>
+      <a href="README.html">README</a>
+      <a href="PLAN.html">Plan</a>
+      <a href="DECISIONS.html">Decisions</a>
+      <a href="VALIDATION.html">Validation</a>
+      <a href="CLAUDE.html">CLAUDE.md</a>
+    </nav>
+  </div>
+</header>
+<div class="doc-layout has-toc">
+<nav id="TOC" aria-label="Contents">
+<p class="toc-title">Contents</p>
+<ul>
+<li><a href="#validation" id="toc-validation">Validation</a>
+<ul>
+<li><a href="#summary--all-presets-at-default-inputs-planmd-5"
+id="toc-summary--all-presets-at-default-inputs-planmd-5">Summary — all
+presets at default inputs (PLAN.md §5)</a></li>
+<li><a href="#phase-3--e-1-intermediate-pressure-2026-09-25"
+id="toc-phase-3--e-1-intermediate-pressure-2026-09-25">Phase 3 — E-1
+intermediate pressure (2026-09-25)</a></li>
+<li><a href="#phase-4--fig-1-preset-lng-double-expansion-2026-09-25"
+id="toc-phase-4--fig-1-preset-lng-double-expansion-2026-09-25">Phase 4 —
+Fig. 1 preset, LNG double expansion (2026-09-25)</a></li>
+<li><a
+href="#phase-5a--heat-sources-fig-1-coupled-to-gt-exhaust-fig-4-2026-09-25"
+id="toc-phase-5a--heat-sources-fig-1-coupled-to-gt-exhaust-fig-4-2026-09-25">Phase
+5a — heat sources, Fig. 1 coupled to GT exhaust, Fig. 4 (2026-09-25)</a>
+<ul>
+<li><a href="#fig-1-with-a-real-gas-turbine-exhaust-stream"
+id="toc-fig-1-with-a-real-gas-turbine-exhaust-stream">Fig. 1 with a real
+gas-turbine exhaust stream</a></li>
+<li><a href="#fig-4-liquid-air--gt-exhaust--methane-orc--duct-burner"
+id="toc-fig-4-liquid-air--gt-exhaust--methane-orc--duct-burner">Fig. 4:
+liquid air + GT exhaust + methane ORC + duct burner</a></li>
+</ul></li>
+<li><a href="#phase-5b--engine-presets-fig-3-and-fig-5-2026-09-25"
+id="toc-phase-5b--engine-presets-fig-3-and-fig-5-2026-09-25">Phase 5b —
+engine presets: Fig. 3 and Fig. 5 (2026-09-25)</a>
+<ul>
+<li><a
+href="#fig-3-liquid-air--engine-without-turbocharger--methane-orc"
+id="toc-fig-3-liquid-air--engine-without-turbocharger--methane-orc">Fig.
+3: liquid air + engine without turbocharger + methane ORC</a></li>
+<li><a
+href="#fig-5-lng--turbocharged-engine-exhaust-and-turbocharger-air"
+id="toc-fig-5-lng--turbocharged-engine-exhaust-and-turbocharger-air">Fig.
+5: LNG + turbocharged engine exhaust and turbocharger air</a></li>
+</ul></li>
+<li><a
+href="#phase-5c--compressor-less-combustion-turbines-fig-2-and-fig-4a-2026-09-25"
+id="toc-phase-5c--compressor-less-combustion-turbines-fig-2-and-fig-4a-2026-09-25">Phase
+5c — compressor-less combustion turbines: Fig. 2 and Fig. 4A
+(2026-09-25)</a>
+<ul>
+<li><a
+href="#fig-2-liquid-air--methane-rankine-loop--combustion-turbine-without-compressor--duct-burner"
+id="toc-fig-2-liquid-air--methane-rankine-loop--combustion-turbine-without-compressor--duct-burner">Fig.
+2: liquid air + methane Rankine loop + combustion turbine without
+compressor + duct burner</a></li>
+<li><a
+href="#fig-4a-fig-4-with-a-compressor-less-gas-turbine-and-duct-burner-436"
+id="toc-fig-4a-fig-4-with-a-compressor-less-gas-turbine-and-duct-burner-436">Fig.
+4A: Fig. 4 with a compressor-less gas turbine and duct burner
+436</a></li>
+</ul></li>
+<li><a href="#phase-5-summary--all-presets-at-default-inputs"
+id="toc-phase-5-summary--all-presets-at-default-inputs">Phase 5 summary
+— all presets at default inputs</a></li>
+<li><a href="#phase-6--sweeps-and-optimization-2026-09-25"
+id="toc-phase-6--sweeps-and-optimization-2026-09-25">Phase 6 — sweeps
+and optimization (2026-09-25)</a>
+<ul>
+<li><a href="#acceptance-fig-1-p-1-discharge-sweep-10002500-psia"
+id="toc-acceptance-fig-1-p-1-discharge-sweep-10002500-psia">Acceptance:
+Fig. 1 P-1 discharge sweep, 1000–2500 psia</a></li>
+<li><a href="#optimization-example"
+id="toc-optimization-example">Optimization example</a></li>
+</ul></li>
+<li><a href="#phase-7--dispatch-and-economics-2026-09-25"
+id="toc-phase-7--dispatch-and-economics-2026-09-25">Phase 7 — dispatch
+and economics (2026-09-25)</a></li>
+<li><a href="#phase-8--web-layer-2026-09-25"
+id="toc-phase-8--web-layer-2026-09-25">Phase 8 — web layer
+(2026-09-25)</a></li>
+<li><a href="#phase-9--ui-2026-09-25"
+id="toc-phase-9--ui-2026-09-25">Phase 9 — UI (2026-09-25)</a></li>
+</ul></li>
+</ul>
+</nav>
+<main class="doc">
+<p class="source-note">Rendered from <code>docs/VALIDATION.md</code> in the jitmodel repository, as of September 26, 2026 (commit 43f6277).</p>
+<h1 id="validation">Validation</h1>
+<p>Per-preset validation against US 11,598,261 (<a
+href="PLAN.html">PLAN.md</a> §5). Every number below was produced by the
+solver (<code>tests/test_intermediate.py</code>, and the table script
+noted with each section). Patent values are cited by column and line of
+the issued patent (<a
+href="https://patents.google.com/patent/US11598261"><code>docs/US11598261.pdf</code></a>).</p>
+<!-- summary:start -->
+
+<h2 id="summary--all-presets-at-default-inputs-planmd-5">Summary — all
+presets at default inputs (<a href="PLAN.html">PLAN.md</a> §5)</h2>
+<p>Generated by <code>make validation</code> (2026-09-25); every number
+below comes from a solve, not by hand.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Preset</th>
+<th>Fluid</th>
+<th>P_int (psia)</th>
+<th>Patent P_int</th>
+<th>Δ</th>
+<th>Re-condensed (°F)</th>
+<th>Net power (MW)</th>
+<th>Baseline (MW)</th>
+<th>Gain</th>
+<th>Energy balance</th>
+<th>P_int ±10 %</th>
+<th>Balance &lt; 1e-6</th>
+<th>Beats baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fig. 1</td>
+<td>Methane</td>
+<td>523.1</td>
+<td>520</td>
+<td>+0.6 %</td>
+<td>-130.5</td>
+<td>2.599</td>
+<td>1.243</td>
+<td>+109 %</td>
+<td>1.2e-13</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+</tr>
+<tr class="even">
+<td>Fig. 2</td>
+<td>Air</td>
+<td>461.7</td>
+<td>460</td>
+<td>+0.4 %</td>
+<td>-228.8</td>
+<td>11.605</td>
+<td>5.020</td>
+<td>+131 %</td>
+<td>2.2e-17</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+</tr>
+<tr class="odd">
+<td>Fig. 3</td>
+<td>Air</td>
+<td>461.7</td>
+<td>455</td>
+<td>+1.5 %</td>
+<td>-228.8</td>
+<td>5.563</td>
+<td>4.541</td>
+<td>+23 %</td>
+<td>4.0e-16</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+</tr>
+<tr class="even">
+<td>Fig. 4</td>
+<td>Air</td>
+<td>461.7</td>
+<td>455</td>
+<td>+1.5 %</td>
+<td>-228.8</td>
+<td>7.738</td>
+<td>4.639</td>
+<td>+67 %</td>
+<td>3.6e-13</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+</tr>
+<tr class="odd">
+<td>Fig. 4A</td>
+<td>Air</td>
+<td>461.7</td>
+<td>455</td>
+<td>+1.5 %</td>
+<td>-228.8</td>
+<td>10.333</td>
+<td>4.639</td>
+<td>+123 %</td>
+<td>9.7e-13</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+</tr>
+<tr class="even">
+<td>Fig. 5</td>
+<td>Methane</td>
+<td>523.1</td>
+<td>520</td>
+<td>+0.6 %</td>
+<td>-130.5</td>
+<td>3.128</td>
+<td>1.243</td>
+<td>+152 %</td>
+<td>2.7e-12</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Patent references:</p>
+<ul>
+<li><strong>Fig. 1 — LNG, gas-turbine exhaust:</strong> ≈520 psia, col.
+3 ll. 32-34; Fig. 1, col. 6 ll. 59-60.</li>
+<li><strong>Fig. 2 — Liquid air, methane Rankine loop, combustion
+turbine:</strong> “usually about 460 psia”, Fig. 2, col. 9 ll.
+54-55.</li>
+<li><strong>Fig. 3 — Liquid air, engine without turbocharger,
+ORC:</strong> ≈455 psia, Fig. 3, col. 14 ll. 27-29.</li>
+<li><strong>Fig. 4 — Liquid air, gas-turbine exhaust, ORC:</strong> ≈455
+psia for LA, col. 3 ll. 32-34.</li>
+<li><strong>Fig. 4A — Liquid air, compressor-less gas turbine:</strong>
+≈455 psia for LA, col. 3 ll. 32-34.</li>
+<li><strong>Fig. 5 — LNG, turbocharged engine:</strong> ≈520 psia for
+LNG, col. 3 ll. 32-34.</li>
+<li><strong>Liquid-air re-condensed temperature:</strong> patent about
+-230 °F (Fig. 3, col. 14 ll. 27-29); computed Fig. 2 -228.8 °F, Fig. 3
+-228.8 °F, Fig. 4 -228.8 °F, Fig. 4A -228.8 °F.</li>
+</ul>
+<p>Inputs used (defaults, US customary; see <a
+href="DECISIONS.html">docs/DECISIONS.md</a> for where each comes
+from):</p>
+<details><summary>Fig. 1 — LNG, gas-turbine exhaust (solved in 1.4 s)</summary>
+
+<p>m_dot = 79,366.414 lb/h; P_tank = 14.7 psia; P1 = 1,500.0 psia; P2 =
+2,000.0 psia; P_final = 1,000.0 psia; eta_pump = 0.750; eta_motor =
+1.000; eta_expander = 0.850; eta_generator = 0.970; dT_min = 5.00 °F;
+T_warm = 75.0 °F; T_t1_in = 600.0 °F; split_to_recuperator = 0.500;
+exhaust_T = 1,000.0 °F; exhaust_m_dot = 158,732.829 lb/h; exhaust_O2 =
+14.0 %; exhaust_P = 14.7 psia.</p>
+</details>
+
+<details><summary>Fig. 2 — Liquid air, methane Rankine loop, combustion turbine (solved in 1.3 s)</summary>
+
+<p>m_dot = 79,366.414 lb/h; P_tank = 14.7 psia; P1 = 1,500.0 psia; P2 =
+2,000.0 psia; P_final = 15.2 psia; eta_pump = 0.750; eta_motor = 1.000;
+eta_expander = 0.850; eta_generator = 0.970; dT_min = 5.00 °F; T_warm =
+75.0 °F; T_t1_in = 500.0 °F; T_224_in = 1,000.0 °F; P_224_out = 250.0
+psia; split_to_230 = 0.000; T_combustor = 2,000.0 °F; T_burner = 1,300.0
+°F; rankine_P_high = 1,500.0 psia; rankine_P_cond = 530.0 psia;
+rankine_T_in = 600.0 °F.</p>
+</details>
+
+<details><summary>Fig. 3 — Liquid air, engine without turbocharger, ORC (solved in 1.3 s)</summary>
+
+<p>m_dot = 79,366.414 lb/h; P_tank = 14.7 psia; P1 = 1,500.0 psia; P2 =
+1,500.0 psia; P_final = 15.2 psia; eta_pump = 0.750; eta_motor = 1.000;
+eta_expander = 0.850; eta_generator = 0.970; dT_min = 5.00 °F; T_warm =
+75.0 °F; engine_air_m_dot = 63,493.132 lb/h; engine_air_P = 45.0 psia;
+engine_air_T = 120.0 °F; exhaust_T = 1,000.0 °F; exhaust_O2 = 11.0 %;
+exhaust_P = 14.7 psia; coolant_T = 200.0 °F; coolant_m_dot = 79,366.414
+lb/h; T_t2_in = 900.0 °F; lt_coolant_T = 130.0 °F; lt_coolant_m_dot =
+79,366.414 lb/h; burner_T = 1,400.0 °F; orc_P_high = 1,500.0 psia;
+orc_P_cond = 530.0 psia; orc_T_in = 600.0 °F; orc_exhaust_out_T =
+1,100.0 °F.</p>
+</details>
+
+<details><summary>Fig. 4 — Liquid air, gas-turbine exhaust, ORC (solved in 1.6 s)</summary>
+
+<p>m_dot = 79,366.414 lb/h; P_tank = 14.7 psia; P1 = 1,500.0 psia; P2 =
+2,000.0 psia; P_final = 15.2 psia; eta_pump = 0.750; eta_motor = 1.000;
+eta_expander = 0.850; eta_generator = 0.970; dT_min = 5.00 °F; T_warm =
+75.0 °F; P_hp_out = 250.0 psia; T_hp_in = 900.0 °F; T_burner = 900.0 °F;
+exhaust_T = 1,000.0 °F; exhaust_m_dot = 158,732.829 lb/h; exhaust_O2 =
+14.0 %; exhaust_P = 14.7 psia; orc_split = 0.275; orc_P_high = 1,500.0
+psia; orc_P_cond = 530.0 psia; orc_T_in = 600.0 °F.</p>
+</details>
+
+<details><summary>Fig. 4A — Liquid air, compressor-less gas turbine (solved in 1.5 s)</summary>
+
+<p>m_dot = 79,366.414 lb/h; P_tank = 14.7 psia; P1 = 1,500.0 psia; P2 =
+2,000.0 psia; P_final = 15.2 psia; eta_pump = 0.750; eta_motor = 1.000;
+eta_expander = 0.850; eta_generator = 0.970; dT_min = 5.00 °F; T_warm =
+75.0 °F; P_hp_out = 250.0 psia; T_hp_in = 900.0 °F; T_combustor =
+2,000.0 °F; T_burner = 1,100.0 °F.</p>
+</details>
+
+<details><summary>Fig. 5 — LNG, turbocharged engine (solved in 4.1 s)</summary>
+
+<p>m_dot = 79,366.414 lb/h; P_tank = 14.7 psia; P1 = 1,500.0 psia; P2 =
+2,000.0 psia; P_final = 1,000.0 psia; eta_pump = 0.750; eta_motor =
+1.000; eta_expander = 0.850; eta_generator = 0.970; dT_min = 5.00 °F;
+T_warm = 75.0 °F; engine_air_m_dot = 79,366.414 lb/h; engine_air_P =
+45.0 psia; engine_air_T = 120.0 °F; exhaust_T = 800.0 °F; exhaust_O2 =
+11.0 %; exhaust_P = 14.7 psia; coolant_T = 200.0 °F; coolant_m_dot =
+79,366.414 lb/h; turbo_air_P = 45.0 psia; turbo_air_T = 450.0 °F;
+T_t1_in = 600.0 °F; T_t2_in = 500.0 °F; burner_542_T = 1,200.0 °F.</p>
+</details>
+
+<!-- summary:end -->
+
+<h2 id="phase-3--e-1-intermediate-pressure-2026-09-25">Phase 3 — E-1
+intermediate pressure (2026-09-25)</h2>
+<p><strong>Conditions.</strong> The patent doesn’t state these, so the
+D15 defaults are used and were not tuned:</p>
+<ul>
+<li>Tank: saturated liquid at 14.696 psia (“at or near atmospheric
+pressure”, col. 5 ll. 25-26).</li>
+<li>P-1 discharge 1500 psia (patent range 1000-2500 psia, col. 5 ll.
+36-37); pump η_s 0.75.</li>
+<li>T-1 inlet 300 °F at the P-1 discharge pressure; T-1 η_s 0.85. No
+pressure drops.</li>
+<li>E-1 ΔT_min 5 °F, N = 200 equal-duty segments plus phase-change
+nodes, with the pinch refined.</li>
+<li>100 % of the pumped fluid re-condensed (m_hot = m_cold), as the
+patent assumes (col. 3 ll. 28-31).</li>
+<li>E-1 hot inlet = T-1 exhaust (Fig. 3 arrangement). This does not
+affect the result; see below.</li>
+</ul>
+<p><strong>Results</strong></p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Fluid</th>
+<th>Computed P_int (psia)</th>
+<th>Patent (psia)</th>
+<th>Difference</th>
+<th>Re-condensed T (°F)</th>
+<th>Tank T (°F)</th>
+<th>P-1 out T (°F)</th>
+<th>Pinch (Q/duty from cold end)</th>
+<th>E-1 min ΔT (°F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LNG (pure methane)</td>
+<td>523.1</td>
+<td>520 (col. 3 ll. 32-34; Fig. 1 col. 6 l. 60)</td>
+<td>+0.6 %</td>
+<td>-130.5</td>
+<td>-258.7</td>
+<td>-249.7</td>
+<td>0.395</td>
+<td>5.000</td>
+</tr>
+<tr class="even">
+<td>Liquid air (pseudo-pure)</td>
+<td>461.7</td>
+<td>455 (col. 3 ll. 32-34; Fig. 3 col. 14 ll. 27-29)</td>
+<td>+1.5 %</td>
+<td>-228.8</td>
+<td>-317.6</td>
+<td>-309.6</td>
+<td>0.319</td>
+<td>5.000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Liquid air, re-condensed temperature:</strong> -228.8 °F
+against the patent’s “about -230 °F” (Fig. 3, col. 14 ll. 27-29).</li>
+<li><strong>Fig. 2 liquid air:</strong> the patent says “usually about
+460 psia” (col. 9 ll. 54-55). The computed value is 461.7 psia.</li>
+<li><strong>Pass criterion (±10 %):</strong> both fluids pass.</li>
+</ul>
+<p><strong>Where the pinch is.</strong> For both fluids the pinch is
+internal, a little into the hot stream’s desuperheating zone just above
+its dew point. There the cold stream (supercritical, near its
+pseudo-critical cp peak) meets the hot vapor. The cold end is not the
+pinch: it has 80+ °F of approach. The pinch doesn’t depend on how much
+superheat the hot stream carries, so P_int is <strong>independent of the
+T-1 inlet temperature</strong> (identical from 50 °F to 900 °F) and of
+T-1 efficiency. It is also unchanged by recuperating the T-1 exhaust
+before E-1 (Fig. 1’s exchangers 114/122), as long as the E-1 hot inlet
+stays superheated.</p>
+<p><strong>Sensitivity to inputs the patent doesn’t state</strong>
+(P_int in psia; other inputs at the defaults above)</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>LNG</th>
+<th>Liquid air</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>P-1 discharge 1000 / 1500 / 2000 / 2500 psia</td>
+<td>498.1 / 523.1 / 544.5 / 563.4</td>
+<td>437.4 / 461.7 / 481.5 / 497.9</td>
+</tr>
+<tr class="even">
+<td>E-1 ΔT_min 2 / 3 / 5 / 10 °F</td>
+<td>513.1 / 516.4 / 523.1 / 539.7</td>
+<td>450.8 / 454.4 / 461.7 / 479.4</td>
+</tr>
+<tr class="odd">
+<td>Pump η_s 0.60 / 0.75 / 0.90</td>
+<td>533.7 / 523.1 / 516.0</td>
+<td>472.4 / 461.7 / 454.4</td>
+</tr>
+<tr class="even">
+<td>T-1 η_s 0.75 / 0.85 / 0.95</td>
+<td>523.1 (all)</td>
+<td>461.7 (all)</td>
+</tr>
+<tr class="odd">
+<td>Segments 50 / 200 / 800</td>
+<td>523.086 (all)</td>
+<td>461.681 (all)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Across the whole patent pump range (1000-2500 psia), both fluids stay
+within ±10 % of the patent value.
+<code>test_within_patent_band_across_pump_range</code> checks the two
+ends.</p>
+<p><strong>Modeling caveats</strong></p>
+<ul>
+<li>LNG is pure methane (<a href="PLAN.html">PLAN.md</a> §6). Real LNG’s
+heavier components would raise the bubble point and add a condensing
+glide.</li>
+<li>Air is CoolProp’s pseudo-pure model (D21): it has a bubble/dew
+glide, but it isn’t a true mixture.</li>
+</ul>
+<h2 id="phase-4--fig-1-preset-lng-double-expansion-2026-09-25">Phase 4 —
+Fig. 1 preset, LNG double expansion (2026-09-25)</h2>
+<p><strong>Inputs</strong> (<code>Fig1Inputs()</code> defaults; D15,
+D36):</p>
+<ul>
+<li>LNG as pure methane, 10 kg/s from a tank at 14.696 psia.</li>
+<li>P-1 1500 psia; P-2 2000 psia, which is 1000 psi above pipeline and
+inside the patent’s 500–1500 psi margin (col. 7 ll. 5-7).</li>
+<li>Pipeline 1000 psia.</li>
+<li>Warming exchangers 108/128 to 75 °F (patent 50–100 °F, col. 5 ll.
+58-59).</li>
+<li>T-1 inlet 600 °F; 50 % of the splitter-110 flow to recuperator
+114.</li>
+<li>η: pump 0.75, motor 1.0, expanders 0.85, generators 0.97.</li>
+<li>ΔT_min 5 °F in every two-stream exchanger.</li>
+</ul>
+<p>Heat-source exchangers 112/118 are temperature-specified heaters
+until Phase 5 couples the gas-turbine exhaust.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Fig. 1 double expansion</th>
+<th>Single-expansion baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Net power (MW)</td>
+<td>2.599</td>
+<td>1.243</td>
+</tr>
+<tr class="even">
+<td>Expander power, gross electric (MW)</td>
+<td>3.405</td>
+<td>1.671</td>
+</tr>
+<tr class="odd">
+<td>Pump power (MW)</td>
+<td>0.806</td>
+<td>0.428</td>
+</tr>
+<tr class="even">
+<td>Heat-source input (MW)</td>
+<td>5.758</td>
+<td>8.976</td>
+</tr>
+<tr class="odd">
+<td>Ambient heat input (MW)</td>
+<td>6.133</td>
+<td>7.273</td>
+</tr>
+<tr class="even">
+<td>Specific output (kWh/t LNG)</td>
+<td>72.2</td>
+<td>34.5</td>
+</tr>
+<tr class="odd">
+<td>Energy-balance residual</td>
+<td>5.7e-13</td>
+<td>1.2e-16</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Gain vs baseline: <strong>+1.356 MW (+109.2 %)</strong>.</li>
+<li>P_int 523.1 psia, re-condensed at -130.5 °F; E-1 min approach 5.000
+°F.</li>
+<li>T-1 exhaust 447.0 °F; E-1 hot inlet after recuperators 114/122 80.0
+°F; T-2 inlet 221.4 °F; pipeline gas 128.8 °F.</li>
+<li>Solver: tears 120-114, 122-106; wegstein, 1 tear iteration(s), 2
+P_int design passes, tear residual 5.9e-13; 1.4 s wall time.</li>
+</ul>
+<p><strong>Checks</strong></p>
+<ul>
+<li>Energy balance below 1e-6: <strong>pass</strong>.</li>
+<li>Beats baseline: <strong>pass</strong>.</li>
+<li>P_int within ±10 % of ≈520 psia: <strong>pass</strong> (+0.6
+%).</li>
+<li>The same answer to 1e-9 from three perturbed tear guesses (including
+a 70 % mass-flow error) and with Broyden instead of Wegstein:
+<strong>pass</strong>.</li>
+</ul>
+<p><strong>How to read the gain.</strong> The baseline follows <a
+href="PLAN.html">PLAN.md</a> §1: pump → warm → heat → single expansion →
+out, with no recuperator. Its expander exhaust goes to the pipeline hot,
+so part of Fig. 1’s advantage is the recuperation (114/122) that the
+double-expansion layout makes possible. This shows up as Fig. 1 needing
+<em>less</em> heat-source input (5.76 vs 8.98 MW) while making twice the
+net power. The baseline pump discharge is max(P-1, P-2) = 2000 psia
+(D38).</p>
+<p><strong>Observations, not tuned</strong></p>
+<ul>
+<li>Fig. 1’s pipeline gas leaves T-2 at 128.8 °F; the baseline’s leaves
+its expander at 496.3 °F. Real pipelines often cap delivery temperature,
+and that isn’t modeled.</li>
+<li>The T-1 tear converges in one iteration because every heater has a
+temperature spec, so nothing downstream feeds back numerically. Real
+recycle coupling arrives with the heat-source streams in Phase 5.</li>
+</ul>
+<h2
+id="phase-5a--heat-sources-fig-1-coupled-to-gt-exhaust-fig-4-2026-09-25">Phase
+5a — heat sources, Fig. 1 coupled to GT exhaust, Fig. 4
+(2026-09-25)</h2>
+<h3 id="fig-1-with-a-real-gas-turbine-exhaust-stream">Fig. 1 with a real
+gas-turbine exhaust stream</h3>
+<ul>
+<li>Exhaust 20 kg/s at 1000 °F, 14 % O2 (wet): 118 outlet 777.1 °F,
+stack 535.5 °F. Heat-source input 5.758 MW equals the exhaust enthalpy
+drop (tested). Net power, P_int and baseline are unchanged (2.599 MW),
+as they must be: 118 and 112 keep the same outlet-temperature
+specs.</li>
+<li>Tears are now 116-118, 122-106; the exhaust path adds a recycle (112
+→ 116 → 118 → 112).</li>
+</ul>
+<h3 id="fig-4-liquid-air--gt-exhaust--methane-orc--duct-burner">Fig. 4:
+liquid air + GT exhaust + methane ORC + duct burner</h3>
+<p><strong>Inputs</strong> (<code>Fig4Inputs()</code> defaults;
+D48):</p>
+<ul>
+<li>Liquid air 10 kg/s; P-1 1500 psia; P-2 2000 psia.</li>
+<li>HP turbine 426: 900 °F inlet, 250 psia outlet. Duct burner 428 to
+900 °F (patent 700–1100 °F). LP turbine 430 to 15.2 psia.</li>
+<li>GT exhaust 20 kg/s at 1000 °F, 14 % O2 (wet), 27.5 % to the ORC
+(patent “about 25%-30%”).</li>
+<li>ORC (methane): 1500 → 530 psia, 600 °F turbine inlet.</li>
+<li>η as in D15; ΔT_min 5 °F everywhere.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Fig. 4</th>
+<th>Single-expansion baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Net power (MW)</td>
+<td>7.738</td>
+<td>4.639</td>
+</tr>
+<tr class="even">
+<td>Expander power, gross electric (MW)</td>
+<td>8.257</td>
+<td>4.845</td>
+</tr>
+<tr class="odd">
+<td>Pump power (MW)</td>
+<td>0.519</td>
+<td>0.206</td>
+</tr>
+<tr class="even">
+<td>GT-exhaust heat used (MW)</td>
+<td>6.873</td>
+<td>5.077</td>
+</tr>
+<tr class="odd">
+<td>Duct-burner fuel, LHV (MW)</td>
+<td>3.033</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Ambient heat (MW)</td>
+<td>2.340</td>
+<td>3.757</td>
+</tr>
+<tr class="odd">
+<td>Specific output (kWh/t liquid air)</td>
+<td>214.9</td>
+<td>128.9</td>
+</tr>
+<tr class="even">
+<td>Energy-balance residual</td>
+<td>3.6e-13</td>
+<td>9.2e-17</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Gain vs baseline: <strong>+3.099 MW (+66.8 %)</strong>.</li>
+<li>P_int 461.7 psia (patent ≈455, +1.5 %), re-condensed at -228.8
+°F.</li>
+<li>T-1 inlet (after recuperator 410) 262.0 °F; HP turbine 426 outlet
+398.5 °F; LP turbine 430 outlet 284.1 °F; system exit after 410 80.0 °F
+(patent: about 100–250 °F).</li>
+<li>Recuperator 414 duty only 10 kW: the T-1 exhaust leaves T-1 at 81.7
+°F, barely above the pass-2 air at 75 °F.</li>
+<li>ORC: 3.511 kg/s methane, net 0.733 MW, <strong>limited by condenser
+420</strong> (pass-2 air sink), not by its 27.5 % exhaust share. Its
+exhaust heater keeps 168.2 °F of approach and that exhaust share leaves
+at 467.9 °F; the 424 share leaves at 432.5 °F.</li>
+<li>Duct burner fuel 0.0606 kg/s; fuel heat rate on total net output
+0.392 J/J (1337 Btu/kWh).</li>
+<li>Solver: tears 412-414, 414-406, ORCT-ORCR, 420-ORCV; wegstein, 2
+tear iterations, 2 P_int passes; 1.6 s.</li>
+</ul>
+<p><strong>Checks</strong></p>
+<ul>
+<li>Converges without warnings: <strong>pass</strong>.</li>
+<li>Energy balance below 1e-6: <strong>pass</strong>.</li>
+<li>P_int within ±10 % of the patent: <strong>pass</strong>.</li>
+<li>Every exchanger keeps ΔT_min: <strong>pass</strong>.</li>
+<li>Beats baseline: <strong>pass</strong>.</li>
+</ul>
+<p><strong>How to read the gain.</strong> The baseline (pump → warm →
+heat to the HP-turbine inlet temperature → one expansion to 15.2 psia)
+burns no fuel and has no ORC, so the Fig. 4 advantage includes the duct
+burner’s 3.03 MW of fuel and the ORC. The fuel heat rate is reported so
+the two can be judged together.</p>
+<p><strong>Patent sanity check: “about 1.5 times the power of the gas
+turbine generator 432”</strong> (col. 19 ll. 1-4). This can’t be checked
+without a GT rating. The patent names a Siemens SGT-800 as an example,
+and we use no vendor data (D46). The ratio is reported in
+<code>extra.system_over_gt</code> when the user supplies
+<code>gt_power</code>.</p>
+<p><strong>Observations, not tuned</strong></p>
+<ul>
+<li>Default sizing leaves heat unused: the ORC is condenser-limited, so
+its exhaust share leaves at 468 °F, and recuperator 414 does almost
+nothing. A real design would rebalance the exhaust split, ORC pressures
+and HP turbine inlet. That is a job for the Phase 6 optimizer, not for
+tuning the defaults here.</li>
+<li>The system exit (80 °F after recuperator 410) is below the patent’s
+“about 100 °F to 250 °F”. Max-duty recuperation at a 5 °F approach cools
+it further than the patent’s description.</li>
+</ul>
+<h2 id="phase-5b--engine-presets-fig-3-and-fig-5-2026-09-25">Phase 5b —
+engine presets: Fig. 3 and Fig. 5 (2026-09-25)</h2>
+<h3 id="fig-3-liquid-air--engine-without-turbocharger--methane-orc">Fig.
+3: liquid air + engine without turbocharger + methane ORC</h3>
+<p><strong>Inputs</strong> (<code>Fig3Inputs()</code> defaults; D51,
+D52):</p>
+<ul>
+<li>Liquid air 10 kg/s; P-1 1500 psia; P-2 1500 psia.</li>
+<li>T-2 326: 900 °F inlet, to the engine’s 45 psia intake pressure. T-3
+330 to 15.2 psia.</li>
+<li>Engine: 8 kg/s air, 1000 °F manifold exhaust at 11 % O2. Air
+returned at 120 °F (aftercooler temperature). Coolant loops HT 200 °F /
+LT 130 °F, 10 kg/s each.</li>
+<li>Duct burner 332 to 1400 °F (patent 1100–1800 °F, col. 15 ll.
+42-43).</li>
+<li>ORC 1500 → 530 psia at 600 °F; exhaust leaves ORC heater 360 at ≥
+1100 °F (patent 800–1100 °F, col. 15 ll. 54-55).</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Fig. 3</th>
+<th>Single-expansion baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Net power (MW)</td>
+<td>5.563</td>
+<td>4.541</td>
+</tr>
+<tr class="even">
+<td>Expander power, gross electric (MW)</td>
+<td>6.034</td>
+<td>4.696</td>
+</tr>
+<tr class="odd">
+<td>Pump power (MW)</td>
+<td>0.471</td>
+<td>0.155</td>
+</tr>
+<tr class="even">
+<td>Heat-source heat used (MW)</td>
+<td>6.584</td>
+<td>5.006</td>
+</tr>
+<tr class="odd">
+<td>Duct-burner fuel, LHV (MW)</td>
+<td>2.310</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Ambient heat (MW)</td>
+<td>3.555</td>
+<td>3.866</td>
+</tr>
+<tr class="odd">
+<td>Specific output (kWh/t)</td>
+<td>154.5</td>
+<td>126.1</td>
+</tr>
+<tr class="even">
+<td>Energy-balance residual</td>
+<td>4.0e-16</td>
+<td>0.0e+00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Gain vs baseline: <strong>+1.023 MW (+22.5 %)</strong>; fuel heat
+rate on total net 0.415 J/J (1416 Btu/kWh).</li>
+<li>P_int 461.7 psia, re-condensed at -228.8 °F.</li>
+<li>Engine air: 8.0 kg/s returned at 120.0 °F and 45.0 psia; T-2 326
+outlet 182.3 °F; T-3 330 outlet 36.6 °F.</li>
+<li>Engine exhaust 8.209 kg/s at 1000 °F, burner 332 to 1400 °F, after
+ORC heater 360 1145.0 °F (target 1100 °F; the ORC is condenser-limited),
+stack 317.4 °F.</li>
+<li>ORC 4.415 kg/s methane, net 0.922 MW; its warming exchanger 356
+takes 2.042 MW of ambient heat. Coolant exchangers 320/322 duties 0.464
+/ 0.343 MW.</li>
+<li>Solver: tears 312-306, 362-358, 318-352; wegstein, 2 tear
+iterations, 2 P_int passes; 1.3 s.</li>
+</ul>
+<h3
+id="fig-5-lng--turbocharged-engine-exhaust-and-turbocharger-air">Fig. 5:
+LNG + turbocharged engine exhaust and turbocharger air</h3>
+<p><strong>Inputs</strong> (<code>Fig5Inputs()</code> defaults;
+D53):</p>
+<ul>
+<li>LNG 10 kg/s; P-1 1500 psia; P-2 2000 psia; pipeline 1000 psia.</li>
+<li>T-1 520 inlet 600 °F. This is <em>below</em> the patent’s “typically
+between 700° F. and 1100° F.” (col. 21 ll. 4-5), kept inside methane’s
+validated range (D20).</li>
+<li>T-2 538 inlet 500 °F.</li>
+<li>Engine: 10 kg/s air, 800 °F turbocharger exhaust at 11 % O2;
+turbocharger air at 45 psia / 450 °F (col. 20 ll. 46-47), returned at
+120 °F.</li>
+<li>Duct burner 542 to 1200 °F; burner 540 off.</li>
+<li>Coolant 200 °F, 10 kg/s.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Fig. 5</th>
+<th>Single-expansion baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Net power (MW)</td>
+<td>3.128</td>
+<td>1.243</td>
+</tr>
+<tr class="even">
+<td>Expander power, gross electric (MW)</td>
+<td>3.934</td>
+<td>1.671</td>
+</tr>
+<tr class="odd">
+<td>Pump power (MW)</td>
+<td>0.806</td>
+<td>0.428</td>
+</tr>
+<tr class="even">
+<td>Heat-source heat used (MW)</td>
+<td>7.684</td>
+<td>8.976</td>
+</tr>
+<tr class="odd">
+<td>Duct-burner fuel, LHV (MW)</td>
+<td>2.791</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Ambient heat (MW)</td>
+<td>4.170</td>
+<td>7.273</td>
+</tr>
+<tr class="odd">
+<td>Specific output (kWh/t)</td>
+<td>86.9</td>
+<td>34.5</td>
+</tr>
+<tr class="even">
+<td>Energy-balance residual</td>
+<td>2.7e-12</td>
+<td>1.2e-16</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><p>Gain vs baseline: <strong>+1.886 MW (+151.8 %)</strong>; fuel
+heat rate on total net 0.892 J/J (3044 Btu/kWh).</p></li>
+<li><p>P_int 523.1 psia, re-condensed at -130.5 °F.</p></li>
+<li><p>Engine exhaust 10.317 kg/s after burner 542 at 1200 °F; after 518
+1186.7 °F, after 536 1001.8 °F, stack 429.6 °F.</p></li>
+<li><p>Turbocharger air 10.0 kg/s from 450 °F returned at 120.0 °F.
+Pipeline gas 89.7 °F.</p></li>
+<li><p>Exchanger duties (MW): E-3 4.711, H-1 3.742, E-4 0.000, E-5
+0.000, H-2 0.093, E-6 3.302, H-3 0.715, H-4 1.863, H-6 1.272.</p></li>
+<li><p>Solver: tears 520-516, 538-514, 522-506, 512-514; wegstein, 8
+tear iterations, 2 P_int passes; 4.0 s.</p></li>
+<li><p>Without duct burner 542 (800 °F exhaust only):
+<strong>failed</strong>: infeasible: temperature cross in H-2 (-50.2 K),
+H-6 (-219.0 K) (not enough heat at the temperatures required).</p></li>
+</ul>
+<p><strong>Checks (both presets)</strong></p>
+<ul>
+<li>Converge without warnings: <strong>pass</strong>.</li>
+<li>Energy balance below 1e-6: <strong>pass</strong>.</li>
+<li>P_int within ±10 % of the patent: <strong>pass</strong>.</li>
+<li>Every exchanger with duty keeps ΔT_min: <strong>pass</strong>.</li>
+<li>Beat baseline: <strong>pass</strong>.</li>
+</ul>
+<p><strong>Observations, not tuned</strong></p>
+<ul>
+<li>Fig. 5 with abundant exhaust heat: low-temperature exchanger 512
+does most of pass 1’s heating (capped at the T-1 target minus ΔT_min,
+D53). HT recuperators 514/516 then transfer nothing, 518 only tops up,
+and the stack leaves at 430 °F. The patent’s staging probably intends
+the heat spread differently. Rebalancing is a Phase 6 optimization
+question, not a default to tune.</li>
+<li>Fig. 5 needs duct burner 542 at defaults: without it the 800 °F
+exhaust can’t supply the high-temperature top-up that both passes need
+above the recuperated ~430–480 °F, and the case correctly reports
+infeasible.</li>
+<li>Fig. 3’s ORC is condenser-limited (as in Fig. 4), so exhaust leaves
+its heater hotter than the 1100 °F target.</li>
+<li>Engine power and any engine-side benefit of removing the
+turbocharger (Fig. 3: exhaust 250–350 °F hotter, lower backpressure,
+col. 13 ll. 30-37) are not modeled; the engine is only a heat source and
+an air sink.</li>
+</ul>
+<h2
+id="phase-5c--compressor-less-combustion-turbines-fig-2-and-fig-4a-2026-09-25">Phase
+5c — compressor-less combustion turbines: Fig. 2 and Fig. 4A
+(2026-09-25)</h2>
+<h3
+id="fig-2-liquid-air--methane-rankine-loop--combustion-turbine-without-compressor--duct-burner">Fig.
+2: liquid air + methane Rankine loop + combustion turbine without
+compressor + duct burner</h3>
+<p><strong>Inputs</strong> (<code>Fig2Inputs()</code> defaults;
+D57):</p>
+<ul>
+<li>Liquid air 10 kg/s; P-1 1500 psia; P-2 2000 psia.</li>
+<li>T-1 212 inlet 500 °F (after 210). Expander 224: 1000 °F inlet, 250
+psia outlet (patent 100–400 psia, col. 10 ll. 42-43). Expander 230 split
+0 (“not always used”, col. 12 l. 29).</li>
+<li>Combustor 232 to 2000 °F (patent 1600–2400 °F, col. 10 ll. 55-57).
+CT 234 to 15.2 psia. Duct burner 238 to 1300 °F.</li>
+<li>Rankine loop (methane) 1500 → 530 psia at 600 °F.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Fig. 2</th>
+<th>Single-expansion baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Net power (MW)</td>
+<td>11.605</td>
+<td>5.020</td>
+</tr>
+<tr class="even">
+<td>Expander power, gross electric (MW)</td>
+<td>12.125</td>
+<td>5.226</td>
+</tr>
+<tr class="odd">
+<td>Pump power (MW)</td>
+<td>0.519</td>
+<td>0.206</td>
+</tr>
+<tr class="even">
+<td>Fuel, LHV (MW)</td>
+<td>13.905</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>External heat source (MW)</td>
+<td>0.000</td>
+<td>5.697</td>
+</tr>
+<tr class="even">
+<td>Ambient heat (MW)</td>
+<td>2.921</td>
+<td>3.757</td>
+</tr>
+<tr class="odd">
+<td>Specific output (kWh/t liquid air)</td>
+<td>322.4</td>
+<td>139.4</td>
+</tr>
+<tr class="even">
+<td>Energy-balance residual</td>
+<td>2.2e-17</td>
+<td>0.0e+00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Gain vs baseline <strong>+6.585 MW (+131.2 %)</strong>; fuel heat
+rate on total net 1.198 J/J (4088 Btu/kWh). P_int 461.7 psia.</li>
+<li>Expander 224 1000 °F → 250 psia, 466.3 °F; combustor 232 to 2000 °F;
+CT 234 exhaust 976.3 °F (patent 700–1100 °F); after Rankine heater 236
+800.1 °F; burner 238 to 1300 °F; after 222 595.3 °F; stack 177.4
+°F.</li>
+<li>Rankine loop 3.511 kg/s methane, net 0.733 MW, condenser-limited.
+Fuel 0.2780 kg/s.</li>
+<li>Solver: tears 212-214, 214-206, 222-224, 262-252, 220-254; wegstein,
+2 tear iterations, 2 P_int passes; 1.4 s.</li>
+</ul>
+<h3
+id="fig-4a-fig-4-with-a-compressor-less-gas-turbine-and-duct-burner-436">Fig.
+4A: Fig. 4 with a compressor-less gas turbine and duct burner 436</h3>
+<p><strong>Inputs</strong> (<code>Fig4AInputs()</code> defaults;
+D58):</p>
+<ul>
+<li>As Fig. 4 for the liquid-air side and HP turbine 426.</li>
+<li>Combustor 428 to 2000 °F; turbine 430 to 15.2 psia; duct burner 436
+to 1100 °F.</li>
+<li>No external gas turbine and no ORC.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Fig. 4A</th>
+<th>Single-expansion baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Net power (MW)</td>
+<td>10.333</td>
+<td>4.639</td>
+</tr>
+<tr class="even">
+<td>Expander power, gross electric (MW)</td>
+<td>10.738</td>
+<td>4.845</td>
+</tr>
+<tr class="odd">
+<td>Pump power (MW)</td>
+<td>0.405</td>
+<td>0.206</td>
+</tr>
+<tr class="even">
+<td>Fuel, LHV (MW)</td>
+<td>11.704</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>External heat source (MW)</td>
+<td>0.000</td>
+<td>5.077</td>
+</tr>
+<tr class="even">
+<td>Ambient heat (MW)</td>
+<td>3.387</td>
+<td>3.757</td>
+</tr>
+<tr class="odd">
+<td>Specific output (kWh/t liquid air)</td>
+<td>287.0</td>
+<td>128.9</td>
+</tr>
+<tr class="even">
+<td>Energy-balance residual</td>
+<td>9.7e-13</td>
+<td>9.2e-17</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Gain vs baseline <strong>+5.695 MW (+122.8 %)</strong>; fuel heat
+rate on total net 1.133 J/J (3865 Btu/kWh). P_int 461.7 psia.</li>
+<li>HP 426 900 °F → 250 psia; combustor 428 to 2000 °F; turbine 430
+exhaust 977.4 °F; burner 436 to 1100 °F; after 424 308.5 °F; exit after
+410 108.8 °F (its water dew point; patent Fig. 4: about 100–250 °F). T-1
+inlet 267.9 °F. Fuel 0.2340 kg/s.</li>
+<li>Solver: tears 412-414, 414-406, 424-426; wegstein, 5 tear
+iterations, 2 P_int passes; 1.6 s.</li>
+</ul>
+<p><strong>Checks (both presets)</strong></p>
+<ul>
+<li>Converge without warnings: <strong>pass</strong>.</li>
+<li>Energy balance below 1e-6: <strong>pass</strong>.</li>
+<li>P_int within ±10 %: <strong>pass</strong>.</li>
+<li>Every exchanger with duty keeps ΔT_min: <strong>pass</strong>.</li>
+<li>Beat baseline: <strong>pass</strong>.</li>
+<li>Fig. 2’s CT exhaust is inside the patent’s 700–1100 °F. Fig. 4A’s
+exit is inside Fig. 4’s 100–250 °F.</li>
+</ul>
+<p><strong>How to read the gain.</strong> Figs. 2 and 4A get all their
+heat from burning fuel in the cycle’s own air. The baseline (pump → warm
+→ heat to the same peak temperature → one expansion) has no combustion
+turbine, so most of the gain is the combustion turbine’s own work.
+Compare them by the fuel heat rate as well as the net power.</p>
+<h2 id="phase-5-summary--all-presets-at-default-inputs">Phase 5 summary
+— all presets at default inputs</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Preset</th>
+<th>Fluid</th>
+<th>P_int (psia)</th>
+<th>Net (MW)</th>
+<th>Baseline (MW)</th>
+<th>Gain</th>
+<th>Fuel (MW)</th>
+<th>Heat rate (Btu/kWh)</th>
+<th>Energy balance</th>
+<th>Solve (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fig. 1</td>
+<td>Methane</td>
+<td>523.1</td>
+<td>2.60</td>
+<td>1.24</td>
+<td>+109 %</td>
+<td>—</td>
+<td>—</td>
+<td>1e-13</td>
+<td>1.4</td>
+</tr>
+<tr class="even">
+<td>Fig. 2</td>
+<td>Air</td>
+<td>461.7</td>
+<td>11.61</td>
+<td>5.02</td>
+<td>+131 %</td>
+<td>13.90</td>
+<td>4088</td>
+<td>2e-17</td>
+<td>1.4</td>
+</tr>
+<tr class="odd">
+<td>Fig. 3</td>
+<td>Air</td>
+<td>461.7</td>
+<td>5.56</td>
+<td>4.54</td>
+<td>+23 %</td>
+<td>2.31</td>
+<td>1416</td>
+<td>4e-16</td>
+<td>1.3</td>
+</tr>
+<tr class="even">
+<td>Fig. 4</td>
+<td>Air</td>
+<td>461.7</td>
+<td>7.74</td>
+<td>4.64</td>
+<td>+67 %</td>
+<td>3.03</td>
+<td>1337</td>
+<td>4e-13</td>
+<td>1.6</td>
+</tr>
+<tr class="odd">
+<td>Fig. 4A</td>
+<td>Air</td>
+<td>461.7</td>
+<td>10.33</td>
+<td>4.64</td>
+<td>+123 %</td>
+<td>11.70</td>
+<td>3865</td>
+<td>1e-12</td>
+<td>1.6</td>
+</tr>
+<tr class="even">
+<td>Fig. 5</td>
+<td>Methane</td>
+<td>523.1</td>
+<td>3.13</td>
+<td>1.24</td>
+<td>+152 %</td>
+<td>2.79</td>
+<td>3044</td>
+<td>3e-12</td>
+<td>4.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every preset converges without warnings, closes its energy balance to
+better than 1e-11, keeps ΔT_min in every exchanger that transfers heat,
+re-condenses at the patent’s intermediate pressure (+0.6 % LNG, +1.5 %
+liquid air), and beats its single-expansion baseline. The defaults are
+generic, feasible sizings (D46, D48, D51, D53, D57, D58), not optimized
+designs and not vendor data. Several leave exhaust heat unused. The
+gains depend strongly on how the plan’s baseline is defined (<a
+href="PLAN.html">PLAN.md</a> §1), which has no recuperation, no fuel and
+no ORC.</p>
+<h2 id="phase-6--sweeps-and-optimization-2026-09-25">Phase 6 — sweeps
+and optimization (2026-09-25)</h2>
+<h3 id="acceptance-fig-1-p-1-discharge-sweep-10002500-psia">Acceptance:
+Fig. 1 P-1 discharge sweep, 1000–2500 psia</h3>
+<p>16 points, 4.9 s wall on 10 processes, 0 failures, 0 warnings.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>P-1 discharge (psia)</th>
+<th>P_int (psia)</th>
+<th>Net power (MW)</th>
+<th>Gain vs baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1000</td>
+<td>498.1</td>
+<td>1.9991</td>
+<td>+60.9 %</td>
+</tr>
+<tr class="even">
+<td>1100</td>
+<td>503.5</td>
+<td>2.1505</td>
+<td>+73.1 %</td>
+</tr>
+<tr class="odd">
+<td>1200</td>
+<td>508.6</td>
+<td>2.2833</td>
+<td>+83.8 %</td>
+</tr>
+<tr class="even">
+<td>1300</td>
+<td>513.6</td>
+<td>2.4007</td>
+<td>+93.2 %</td>
+</tr>
+<tr class="odd">
+<td>1400</td>
+<td>518.4</td>
+<td>2.5053</td>
+<td>+101.6 %</td>
+</tr>
+<tr class="even">
+<td>1500</td>
+<td>523.1</td>
+<td>2.5991</td>
+<td>+109.2 %</td>
+</tr>
+<tr class="odd">
+<td>1600</td>
+<td>527.6</td>
+<td>2.6836</td>
+<td>+116.0 %</td>
+</tr>
+<tr class="even">
+<td>1700</td>
+<td>532.0</td>
+<td>2.7601</td>
+<td>+122.1 %</td>
+</tr>
+<tr class="odd">
+<td>1800</td>
+<td>536.3</td>
+<td>2.8296</td>
+<td>+127.7 %</td>
+</tr>
+<tr class="even">
+<td>1900</td>
+<td>540.5</td>
+<td>2.8931</td>
+<td>+132.8 %</td>
+</tr>
+<tr class="odd">
+<td>2000</td>
+<td>544.5</td>
+<td>2.9512</td>
+<td>+137.5 %</td>
+</tr>
+<tr class="even">
+<td>2100</td>
+<td>548.5</td>
+<td>3.0046</td>
+<td>+125.6 %</td>
+</tr>
+<tr class="odd">
+<td>2200</td>
+<td>552.3</td>
+<td>3.0538</td>
+<td>+115.8 %</td>
+</tr>
+<tr class="even">
+<td>2300</td>
+<td>556.1</td>
+<td>3.0992</td>
+<td>+107.6 %</td>
+</tr>
+<tr class="odd">
+<td>2400</td>
+<td>559.8</td>
+<td>3.1412</td>
+<td>+100.6 %</td>
+</tr>
+<tr class="even">
+<td>2500</td>
+<td>563.4</td>
+<td>3.1802</td>
+<td>+94.6 %</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Net power and P_int rise smoothly and monotonically across the whole
+patent range. The tests check that at every point the change in slope
+stays under half the local slope and the curvature keeps one sign.
+<strong>Pass.</strong></p>
+<p>The gain over baseline peaks at P-1 = 2000 psia. That is a property
+of the baseline, not the solver: the baseline pumps to max(P-1, P-2)
+(D38), so above P-2’s 2000 psia the baseline pumps higher as well and
+improves.</p>
+<h3 id="optimization-example">Optimization example</h3>
+<p>Fig. 4, maximize net power over the ORC exhaust split (0.1–0.6) and
+the HP turbine 426 outlet pressure (100–400 psia), 4 starts, 44 s:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Start: split, P_hp_out (psia)</th>
+<th>Optimum: split, P_hp_out (psia)</th>
+<th>Net power (MW)</th>
+<th>Evaluations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.350, 250.0</td>
+<td>0.350, 108.1</td>
+<td>7.9049</td>
+<td>22</td>
+</tr>
+<tr class="even">
+<td>0.422, 178.5</td>
+<td>0.422, 107.7</td>
+<td>7.9049</td>
+<td>18</td>
+</tr>
+<tr class="odd">
+<td>0.152, 268.4</td>
+<td>0.324, 108.1</td>
+<td>7.9049</td>
+<td>19</td>
+</tr>
+<tr class="even">
+<td>0.392, 333.5</td>
+<td>0.392, 107.9</td>
+<td>7.9049</td>
+<td>19</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Default inputs give 7.7378 MW; the optimum is 7.9049 MW (+2.2 %).</p>
+<p>All four starts reach the same net power. The HP-turbine outlet
+pressure has an interior optimum near 108 psia. The ORC split doesn’t
+move: the ORC is condenser-limited (D49, D52), so exhaust beyond its
+exhaust limit can’t be used and net power is flat in that variable. A
+flat direction is a real finding the optimizer should report, not a
+convergence failure.</p>
+<h2 id="phase-7--dispatch-and-economics-2026-09-25">Phase 7 — dispatch
+and economics (2026-09-25)</h2>
+<p><strong>Acceptance tests</strong></p>
+<ul>
+<li>The perfect-foresight LP (HiGHS) equals an exhaustive search over
+all action sequences on an 8-hour toy, and an exact dynamic program over
+integer tank levels on a 48-hour toy. Both cover the case where cycle
+output per kg is below the liquefaction energy, and the case where it’s
+above (then charging and discharging in the same hour pays).
+<strong>Pass.</strong></li>
+<li>The tank never leaves [0, capacity] for any rule, checked with
+hypothesis on random prices. <strong>Pass.</strong></li>
+<li>A full year (8760 h) solves in about 0.4 s.</li>
+</ul>
+<p><strong>Illustrative run</strong> on the SYNTHETIC price fixture
+(<code>tests/fixtures/prices_synthetic_8760.csv</code>, not market
+data). The dispatch inputs are illustrative placeholders chosen only to
+exercise the model, not claims about any plant:</p>
+<ul>
+<li>tank 8 h of full-rate discharge;</li>
+<li>liquefaction 6 MW at 0.4 kWh/kg;</li>
+<li>fuel $4/GJ;</li>
+<li>threshold rule: discharge at ≥ $60/MWh, charge at ≤ $30/MWh.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Cycle</th>
+<th>Rule</th>
+<th>Net revenue ($/yr)</th>
+<th>Discharge h</th>
+<th>Charge h</th>
+<th>Energy ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fig. 1 (LNG)</td>
+<td>lp</td>
+<td>22,401</td>
+<td>44</td>
+<td>111</td>
+<td>5.54</td>
+</tr>
+<tr class="even">
+<td>Fig. 1 (LNG)</td>
+<td>window</td>
+<td>-188,277</td>
+<td>1098</td>
+<td>2190</td>
+<td>5.52</td>
+</tr>
+<tr class="odd">
+<td>Fig. 1 (LNG)</td>
+<td>threshold</td>
+<td>-75,076</td>
+<td>591</td>
+<td>1311</td>
+<td>5.58</td>
+</tr>
+<tr class="even">
+<td>Fig. 4 (liquid air)</td>
+<td>lp</td>
+<td>219,819</td>
+<td>999</td>
+<td>2385</td>
+<td>1.86</td>
+</tr>
+<tr class="odd">
+<td>Fig. 4 (liquid air)</td>
+<td>window</td>
+<td>99,488</td>
+<td>1098</td>
+<td>2190</td>
+<td>1.85</td>
+</tr>
+<tr class="even">
+<td>Fig. 4 (liquid air)</td>
+<td>threshold</td>
+<td>126,970</td>
+<td>591</td>
+<td>1311</td>
+<td>1.88</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>The LP always beats the rules, as it must; the tests check this on
+the fixture.</li>
+<li><strong>Fig. 1’s LNG cycle has an energy ratio of about
+5.5.</strong> It returns about 0.072 kWh per kg against the 0.4 kWh/kg
+paid to liquefy it, so power-only arbitrage barely pays even with
+perfect foresight, and the fixed rules lose money. That follows from the
+model’s physics and the assumptions below; it is not a solver bug. The
+patent’s LNG cases pair the power with gas storage (Fig. 5 is “a gas and
+electric energy storage system storing natural gas as LNG at times of
+excess gas and electric energy and returning both electric power to the
+grid and gas to the pipeline system”, col. 20 ll. 37-41), and the stored
+gas’s own value is outside this power-only dispatch model (D65).</li>
+<li>Liquid air (Fig. 4) has an energy ratio of about 1.9 with these
+placeholder inputs and is profitable under all three rules.</li>
+</ul>
+<p><strong>How to read this comparison</strong> (added 2026-09-26). It
+does <strong>not</strong> show that liquid air is a better business than
+LNG. It shows only that, when the liquid must be made with purchased
+electricity and only electricity is sold, the fuel-assisted liquid-air
+case recovers more of that electricity than the unfired LNG case.</p>
+<ul>
+<li><strong>The charging assumption fits liquid air, not LNG.</strong>
+Liquid air has no value of its own, so buying electricity to liquefy it
+is the real business. At an LNG import terminal the LNG arrives already
+liquefied and must be regasified anyway, so the power is extra income
+from a step that happens regardless. At a peak-shaving plant the stored
+gas is the main product. In both cases most of the value is the gas,
+which this model doesn’t count (D65).</li>
+<li><strong>The two cases are not like for like.</strong> Fig. 4 burns
+about 3.0 MW of fuel (LHV) in B-1 and adds an ORC (0.73 MW net); Fig. 1
+burns nothing. The energy ratio ignores fuel, which flatters Fig. 4.
+Fuel is charged in net revenue, but at the placeholder $4/GJ.</li>
+<li><strong>Part of Fig. 1’s gap is design, not fluid.</strong> Its pass
+2 is heated only by T-1 exhaust, so T-2’s inlet is 221 °F and T-2 makes
+0.96 MW against T-1’s 2.44 MW. Neither default design is optimized.</li>
+<li><strong>The inputs are placeholders:</strong> the same 0.4 kWh/kg
+liquefaction energy for both fluids, synthetic prices, and no vendor
+data.</li>
+<li><strong>A fair LNG evaluation needs an LNG dispatch mode:</strong>
+no electricity charge for liquefaction (or the cost of gas bought to
+liquefy), revenue for gas sent to the pipeline, and the electricity as
+added value. Real inputs (gas prices, send-out rates, liquefaction
+energy) should come from actual projects. A fluid-only comparison would
+also need both fluids run on the same heat source without fuel.</li>
+</ul>
+<h2 id="phase-8--web-layer-2026-09-25">Phase 8 — web layer
+(2026-09-25)</h2>
+<ul>
+<li><strong>Acceptance:</strong> a solve through
+<code>POST /solve</code> stores a <code>CycleResult</code> identical to
+a direct Python solve of the same parsed inputs, compared as objects and
+as sorted JSON. This holds both inline and through the real forkserver
+process pool with polling. <strong>Pass.</strong></li>
+<li><strong>Every preset’s defaults round-trip</strong> through the form
+in both unit systems to 1e-9. Unsolved pages show <code>—</code> for
+every result. Invalid input re-renders the form with the error beside
+the field (400).</li>
+<li><strong>JSON errors</strong> are
+<code>{code, message, detail}</code>.</li>
+<li><strong>Checked by hand on the dev server</strong> (0.0.0.0:5001):
+<code>/</code> → flowsheet; <code>POST /solve</code> → 202 “Solving…” →
+“Converged in 8 iterations” (Fig. 5); CSV export.</li>
+</ul>
+<h2 id="phase-9--ui-2026-09-25">Phase 9 — UI (2026-09-25)</h2>
+<ul>
+<li><strong>Acceptance:</strong> the Playwright smoke test
+(<code>make e2e</code>, system Chromium) passes: load Fig. 1 → move the
+P-1 slider (the live E-1 preview updates) → solve → the results grid
+fills in → Dispatch → upload the fixture CSV → the KPIs fill in, with no
+browser console errors. About 10 s.</li>
+<li><strong>Checked by screenshot</strong> at 1440 px:
+<ul>
+<li>all six flowsheets (unsolved, previewed, solved), in US and SI
+units;</li>
+<li>the heat-exchanger view (T–Q per exchanger, T–s with the saturation
+dome);</li>
+<li>1-D and 2-D sweeps (line chart, heatmap);</li>
+<li>dispatch (KPIs, typical day, tank level, schedule pages);</li>
+<li>the read-only phone layout at 390 px.</li>
+</ul></li>
+</ul>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <p>Copyright 2026 Just In Time Energy Company.</p>
+  </div>
+</footer>
+</body>
+</html>

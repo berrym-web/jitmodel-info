@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation plan · jitmodel</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="../index.html" title="jitmodel — how it was built"><img class="logo" src="../assets/jit-logo.png" alt="Just In-Time Energy Company"></a>
+    <nav aria-label="Documents">
+      <a href="../index.html">Home</a>
+      <a href="transcript.html">Transcript</a>
+      <a href="README.html">README</a>
+      <a href="PLAN.html">Plan</a>
+      <a href="DECISIONS.html">Decisions</a>
+      <a href="VALIDATION.html">Validation</a>
+      <a href="CLAUDE.html">CLAUDE.md</a>
+    </nav>
+  </div>
+</header>
+<div class="doc-layout has-toc">
+<nav id="TOC" aria-label="Contents">
+<p class="toc-title">Contents</p>
+<ul>
+<li><a href="#jitmodel--implementation-plan"
+id="toc-jitmodel--implementation-plan">jitmodel — Implementation
+Plan</a>
+<ul>
+<li><a href="#0-working-rules-for-this-session"
+id="toc-0-working-rules-for-this-session">0. Working rules for this
+session</a></li>
+<li><a href="#1-what-the-patent-describes-modeling-summary"
+id="toc-1-what-the-patent-describes-modeling-summary">1. What the patent
+describes (modeling summary)</a></li>
+<li><a href="#2-stack" id="toc-2-stack">2. Stack</a></li>
+<li><a href="#3-repository-layout" id="toc-3-repository-layout">3.
+Repository layout</a></li>
+<li><a href="#4-phases" id="toc-4-phases">4. Phases</a>
+<ul>
+<li><a href="#phase-0--scaffold" id="toc-phase-0--scaffold">Phase 0 —
+Scaffold</a></li>
+<li><a href="#phase-1--properties-layer"
+id="toc-phase-1--properties-layer">Phase 1 — Properties layer</a></li>
+<li><a href="#phase-2--unit-operations"
+id="toc-phase-2--unit-operations">Phase 2 — Unit operations</a></li>
+<li><a href="#phase-3--discretized-counterflow-hx-and-pinch"
+id="toc-phase-3--discretized-counterflow-hx-and-pinch">Phase 3 —
+Discretized counterflow HX and pinch</a></li>
+<li><a href="#phase-4--flowsheet-solver-and-fig-1"
+id="toc-phase-4--flowsheet-solver-and-fig-1">Phase 4 — Flowsheet solver
+and Fig. 1</a></li>
+<li><a href="#phase-5--remaining-presets-and-heat-sources"
+id="toc-phase-5--remaining-presets-and-heat-sources">Phase 5 — Remaining
+presets and heat sources</a></li>
+<li><a href="#phase-6--studies" id="toc-phase-6--studies">Phase 6 —
+Studies</a></li>
+<li><a href="#phase-7--dispatch-and-economics"
+id="toc-phase-7--dispatch-and-economics">Phase 7 — Dispatch and
+economics</a></li>
+<li><a href="#phase-8--web-routes-jobs-and-json-endpoints"
+id="toc-phase-8--web-routes-jobs-and-json-endpoints">Phase 8 — Web
+routes, jobs and JSON endpoints</a></li>
+<li><a href="#phase-9--pages-and-ui"
+id="toc-phase-9--pages-and-ui">Phase 9 — Pages and UI</a></li>
+<li><a href="#phase-10--polish" id="toc-phase-10--polish">Phase 10 —
+Polish</a></li>
+</ul></li>
+<li><a href="#5-validation-checklist-docsvalidationmd"
+id="toc-5-validation-checklist-docsvalidationmd">5. Validation checklist
+(<code>docs/VALIDATION.md</code>)</a></li>
+<li><a href="#6-known-modeling-risks" id="toc-6-known-modeling-risks">6.
+Known modeling risks</a></li>
+<li><a href="#7-design-tokens-go-in-staticcsstokenscss"
+id="toc-7-design-tokens-go-in-staticcsstokenscss">7. Design tokens (go
+in <code>static/css/tokens.css</code>)</a></li>
+</ul></li>
+</ul>
+</nav>
+<main class="doc">
+<p class="source-note">Rendered from <code>PLAN.md</code> in the jitmodel repository, as of September 26, 2026 (commit 43f6277).</p>
+<p class="page-note">This is the plan as later revised during the Claude Code session, mainly to switch to a simpler Flask architecture.</p>
+<h1 id="jitmodel--implementation-plan">jitmodel — Implementation
+Plan</h1>
+<p>A web application (<code>jitmodel</code>) that models the cryogenic
+power cycle described in <strong>US Patent 11,598,261</strong>. The
+cycle uses LNG or liquid air, pumps it to supercritical pressure, and
+expands it through a turbine. It then <strong>re-condenses the expanded
+stream against the incoming pumped liquid in a shared
+gasifying/condensing heat exchanger</strong>, re-pumps it, re-heats it
+and expands it a second time. The app must support real engineering use:
+design-point sizing, sensitivity studies, and hourly dispatch
+economics.</p>
+<blockquote>
+<p><strong>Before starting:</strong> put the patent PDF at <a
+href="https://patents.google.com/patent/US11598261"><code>docs/US11598261.pdf</code></a>
+and read it. Every “patent reference value” below must be checked
+against the PDF. If the PDF disagrees with this plan, the PDF wins; note
+the discrepancy in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a>.</p>
+</blockquote>
+<hr />
+<h2 id="0-working-rules-for-this-session">0. Working rules for this
+session</h2>
+<ol type="1">
+<li><strong>Work one phase at a time, in order.</strong> Don’t start a
+phase until the previous phase’s acceptance checks pass.</li>
+<li><strong>Run the tests after every meaningful change</strong>
+(<code>make test</code>, which runs <code>.venv/bin/pytest</code>).
+Commit at the end of each phase with a message like
+<code>phase 3: discretized HX + pinch solver</code>.</li>
+<li><strong>Never invent performance numbers.</strong> Anything not
+computed by the solver or taken from the patent shows <code>—</code> in
+the UI. Test fixtures may use patent values only, each with a comment
+citing the figure or column.</li>
+<li><strong>Units:</strong> use SI internally (Pa, K, J/kg, kg/s, W).
+Convert to US customary (psia, °F, Btu/lb, lb/h, MW)
+<strong>only</strong> at the API/UI boundary, through one
+<code>units.py</code> module. Include a UI toggle for SI vs. US
+customary.</li>
+<li><strong>Dependencies:</strong> use only those listed in §2. Ask
+before adding anything else. Vet every Python package on PyPI before
+downloading it (name spelling, source repo, release history, who
+requires it) to guard against typosquatting; see <a
+href="CLAUDE.html">CLAUDE.md</a> rule 8.</li>
+<li>Record non-obvious modeling choices in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a>, one short
+entry per decision.</li>
+<li>Copy these rules into <a
+href="CLAUDE.html"><code>CLAUDE.md</code></a> at the repo root during
+Phase 0.</li>
+</ol>
+<hr />
+<h2 id="1-what-the-patent-describes-modeling-summary">1. What the patent
+describes (modeling summary)</h2>
+<p><strong>Core loop (every figure uses this):</strong></p>
+<ol type="1">
+<li><code>TK-1</code> storage tank holds cryogenic liquid near
+atmospheric pressure.</li>
+<li><code>P-1</code> pumps it to supercritical pressure (patent range
+about <strong>1000–2500 psia</strong>).</li>
+<li><code>E-1</code>, the gasifying/condensing heat exchanger. On its
+<strong>cold side</strong>, the pumped liquid is heated into a
+superheated supercritical fluid. On its <strong>hot side</strong>, the
+expanded vapor from <code>T-1</code> condenses back to liquid, with no
+external coolant.</li>
+<li><code>E-2</code> warming heat exchanger (ambient air, seawater, or
+an ORC condenser) raises the fluid to about 50–100 °F.</li>
+<li><code>H-1</code> heater uses the case’s heat source.</li>
+<li><code>T-1</code> expander expands the fluid to the
+<strong>intermediate pressure</strong> and drives a generator.</li>
+<li><code>E-3</code> recuperator cools the <code>T-1</code> exhaust
+before it enters the hot side of <code>E-1</code>.</li>
+<li><code>V-1</code> accumulator holds the re-condensed liquid at
+intermediate pressure.</li>
+<li><code>P-2</code> re-pumps it to supercritical pressure.</li>
+<li><code>H-2</code> re-heats it.</li>
+<li><code>T-2</code> expands it to final pressure: the gas pipeline for
+LNG, or atmosphere/combustion air for liquid air.</li>
+</ol>
+<p><strong>Patent reference values (verify in PDF):</strong></p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>LNG</th>
+<th>Liquid air</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intermediate (re-condensing) pressure</td>
+<td>≈ 520 psia</td>
+<td>≈ 455 psia</td>
+</tr>
+<tr class="even">
+<td>Re-condensed temperature</td>
+<td>not stated (compute)</td>
+<td>≈ −230 °F</td>
+</tr>
+<tr class="odd">
+<td>Supercritical pump discharge</td>
+<td>1000–2500 psia</td>
+<td>1000–2500 psia</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Case presets:</strong></p>
+<ul>
+<li><strong>Fig. 1:</strong> LNG regasification with double expansion.
+Heat comes from gas turbine exhaust.</li>
+<li><strong>Fig. 2:</strong> Liquid air with a methane Rankine loop,
+plus combustion turbine and duct burner heat.</li>
+<li><strong>Fig. 3:</strong> Liquid air with a reciprocating engine run
+with its turbocharger bypassed, plus an ORC on the exhaust.</li>
+<li><strong>Fig. 4 / 4A:</strong> Liquid air with high-temperature gas
+turbine exhaust and an ORC. The patent claims a large increase over the
+gas turbine’s standalone output; verify the figure in the PDF and use it
+only as a sanity check.</li>
+<li><strong>Fig. 5:</strong> LNG combined gas and power storage. Heat
+comes from engine exhaust and turbocharger air.</li>
+</ul>
+<p><strong>Baseline for comparison:</strong> a conventional
+direct-expansion cycle (pump → heat → single expansion → out) using the
+same fluid, pressures and heat source. Every result screen shows the
+gain versus this baseline.</p>
+<p><strong>The central numerical problem:</strong> the intermediate
+pressure is fixed by an <strong>internal pinch</strong> in
+<code>E-1</code>, not by the cold-end temperature. The hot stream’s
+condensing plateau has to fit against the cold stream’s supercritical
+heat-capacity spike. A lower intermediate pressure gives more
+<code>T-1</code> work, but below some point the exchanger can’t close.
+So the solver finds the <strong>lowest intermediate pressure at which
+the minimum temperature difference along the discretized exchanger is ≥
+ΔT_min</strong>, with the hot stream fully condensed at the outlet.</p>
+<hr />
+<h2 id="2-stack">2. Stack</h2>
+<p>A regular server-rendered web app: <strong>Flask + Jinja templates +
+plain HTML/CSS + small vanilla JavaScript files.</strong> No Node, no
+npm, no bundler, no build step, no client-side framework (no React, Vue,
+etc.).</p>
+<p><strong>Python (3.13 from Debian apt, <code>python3 -m venv</code> +
+<code>pip</code>)</strong></p>
+<ul>
+<li>The virtualenv lives at <code>.venv</code> in the repo root
+(git-ignored). Create it with <code>python3 -m venv .venv</code>, then
+install with <code>.venv/bin/pip install -e '.[dev]'</code>. Never
+install into system Python.</li>
+<li>Dependencies are declared in <code>pyproject.toml</code> (runtime in
+<code>dependencies</code>, test/lint tools in the <code>dev</code>
+extra). No lock tool; pin minimum versions.</li>
+</ul>
+<p>Runtime:</p>
+<ul>
+<li><code>CoolProp</code> for real-fluid properties. Use the
+<code>AbstractState</code> API with the <code>HEOS</code> backend. Allow
+<code>BICUBIC&amp;HEOS</code> as an optional speed mode. Model methane
+as pure <code>Methane</code> in v1 and air as pseudo-pure
+<code>Air</code>. Put all property calls behind an interface so REFPROP
+or GERG-2008 mixtures can be added later.</li>
+<li><code>numpy</code> and <code>scipy</code> (<code>brentq</code>,
+<code>root</code>, and <code>linprog</code> with the HiGHS method).</li>
+<li><code>pydantic</code> v2 for all input/output schemas.</li>
+<li><code>flask</code> (brings Jinja2 and Werkzeug) for pages, form
+handling, file upload and the small JSON endpoints.</li>
+<li><code>pandas</code> for dispatch time series only.</li>
+</ul>
+<p>Dev/test (<code>dev</code> extra):</p>
+<ul>
+<li><code>pytest</code> and <code>hypothesis</code> for tests; Flask’s
+built-in test client for route tests.</li>
+<li><code>ruff</code> (lint + format check) and
+<code>mypy --strict</code> for type checks on <code>core/</code>.</li>
+<li><code>playwright</code> (Python package) for one end-to-end smoke
+test, driving the apt-installed <code>/usr/bin/chromium</code> via
+<code>executable_path</code>. Never run
+<code>playwright install</code>.</li>
+</ul>
+<p><strong>Browser side (static files, no package manager)</strong></p>
+<ul>
+<li><strong>Plotly.js</strong> for the T–Q, T–s, sweep and dispatch
+charts. Download one pinned <code>plotly-&lt;version&gt;.min.js</code>
+once into <code>jitmodel/web/static/vendor/</code> and commit it. Record
+the version, source URL and SHA-256 in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a>. No CDN at
+runtime.</li>
+<li><strong>IBM Plex Sans / Mono</strong> fonts (OFL), vendored as woff2
+in <code>static/fonts/</code>, with system-font fallback.</li>
+<li>Plain CSS with design tokens (§7) in <code>static/css/</code>. No UI
+kit, no preprocessor.</li>
+<li>Plain JavaScript (ES modules loaded with
+<code>&lt;script type="module"&gt;</code>), one small file per page. JS
+only improves pages that already work without it: live slider preview,
+drawing charts from JSON embedded in the page, click-to-inspect, and
+polling a running job. Every action has a normal HTML form
+fallback.</li>
+</ul>
+<p><strong>Dev server: single port 5001, dev instance only</strong></p>
+<ul>
+<li><code>make dev</code> runs
+<code>flask --app jitmodel.web run --debug --host 0.0.0.0 --port 5001</code>.
+One process serves the pages, static files and JSON endpoints. It’s
+bound to <code>0.0.0.0</code> with no auth, so use it on a trusted
+network only.</li>
+<li>No production server, build step or deployment is in scope.</li>
+</ul>
+<hr />
+<h2 id="3-repository-layout">3. Repository layout</h2>
+<p>The repo root is <code>~/jitmodel</code>.</p>
+<pre><code>jitmodel/
+  CLAUDE.md
+  Makefile
+  pyproject.toml
+  .githooks/pre-commit   # runs `make lint`
+  .venv/                 # git-ignored
+  var/                   # git-ignored: saved results and job outputs (dev only)
+  docs/
+    US11598261.pdf
+    DECISIONS.md
+    VALIDATION.md
+  jitmodel/
+    units.py
+    schemas.py           # pydantic CaseInputs, CycleResult, etc.
+    props/               # fluid property interface + CoolProp impl
+      base.py
+      coolprop_impl.py
+    core/
+      stream.py          # Stream state (fluid, m_dot, P, h) → T, s, phase, quality
+      units_ops/         # Pump, Expander, HeatExchanger, Heater, Splitter, Mixer, Accumulator, Sink, Source
+      hx.py              # discretized counterflow HX + pinch analysis
+      flowsheet.py       # graph, tear streams, solver
+      intermediate.py    # intermediate-pressure solve
+      baseline.py
+    cases/               # fig1.py … fig5.py preset builders, each with its diagram layout
+    heat_sources.py      # exhaust / molten salt / burner streams
+    studies/
+      sweep.py
+      optimize.py
+      dispatch.py
+    web/
+      __init__.py        # create_app()
+      pages.py           # HTML routes (Blueprint)
+      api.py             # JSON routes under /api (Blueprint)
+      jobs.py            # background job runner + status
+      store.py           # save/load results in var/
+      diagram.py         # builds the flowsheet SVG from a case layout + result
+      templates/
+        base.html
+        flowsheet.html
+        heat_exchangers.html
+        sweeps.html
+        dispatch.html
+        _macros.html     # form fields, number cells, result grid, &quot;—&quot; placeholders
+      static/
+        css/tokens.css
+        css/app.css
+        js/flowsheet.js
+        js/charts.js
+        js/sweeps.js
+        js/dispatch.js
+        vendor/plotly-&lt;version&gt;.min.js
+        fonts/
+  tests/
+    e2e/test_smoke.py</code></pre>
+<hr />
+<h2 id="4-phases">4. Phases</h2>
+<h3 id="phase-0--scaffold">Phase 0 — Scaffold</h3>
+<ul>
+<li><code>git init</code>, <code>.gitignore</code> (<code>.venv/</code>,
+<code>var/</code>, caches), and the layout above.</li>
+<li><a href="CLAUDE.html"><code>CLAUDE.md</code></a>,
+<code>pyproject.toml</code>, and a plain git pre-commit hook in
+<code>.githooks/pre-commit</code> that runs <code>make lint</code>,
+enabled with <code>git config core.hooksPath .githooks</code>. Don’t use
+the <code>pre-commit</code> framework.</li>
+<li><code>Makefile</code> targets:
+<ul>
+<li><code>make setup</code> creates <code>.venv</code> and runs
+<code>pip install -e '.[dev]'</code>.</li>
+<li><code>make dev</code> starts the port-5001 dev server (§2).</li>
+<li><code>make test</code> runs pytest; <code>make e2e</code> runs the
+Playwright smoke test separately.</li>
+<li><code>make lint</code> runs <code>ruff check</code>,
+<code>ruff format --check</code> and
+<code>mypy --strict jitmodel/core</code>. All targets call tools through
+<code>.venv/bin/</code>.</li>
+</ul></li>
+<li>A minimal <code>create_app()</code> with one page that renders
+<code>base.html</code> and the tokens.</li>
+<li><strong>Done when:</strong> <code>make test</code> and
+<code>make lint</code> pass on the skeleton, and <code>make dev</code>
+serves the placeholder page on port 5001.</li>
+</ul>
+<h3 id="phase-1--properties-layer">Phase 1 — Properties layer</h3>
+<ul>
+<li><code>props/base.py</code>: a <code>FluidProps</code> protocol with
+<code>state_ph(P, h)</code>, <code>state_pt(P, T)</code>,
+<code>state_ps(P, s)</code>, <code>sat_liquid_T(T)</code>,
+<code>sat_liquid_P(P)</code>, <code>critical()</code>. Each returns an
+immutable <code>ThermoState</code> with T, P, h, s, rho, cp, phase and
+quality.</li>
+<li><code>coolprop_impl.py</code>: implement this with
+<code>AbstractState</code>. Handle states near the critical point by
+imposing the phase explicitly where CoolProp is unreliable. Cache states
+with an LRU cache keyed on rounded inputs.</li>
+<li><strong>Tests:</strong>
+<ul>
+<li>Round-trip P,T → h → P,h → T to within 1e-6 relative, across 90–700
+K and 0.1–20 MPa for both fluids. Use hypothesis, excluding a small band
+around the critical point.</li>
+<li>Critical points match the CoolProp reference values.</li>
+</ul></li>
+<li><strong>Done when:</strong> tests pass and 10k <code>state_ph</code>
+calls finish in under 1 s in HEOS mode (the benchmark is marked
+slow).</li>
+</ul>
+<h3 id="phase-2--unit-operations">Phase 2 — Unit operations</h3>
+<ul>
+<li><code>Stream</code>: fluid, m_dot, P, h, with derived T, s and
+phase.</li>
+<li><code>Pump</code> and <code>Expander</code>: take outlet pressure
+and isentropic efficiency; return the outlet stream and shaft power.
+Expanders also take a generator efficiency.</li>
+<li><code>Heater</code>: set an outlet temperature, or a duty, or a
+coupling to a heat-source stream (see Phase 5).</li>
+<li><code>Splitter</code>, <code>Mixer</code>, <code>Accumulator</code>
+(pass-through with a saturated-liquid check), <code>Source</code>,
+<code>Sink</code>.</li>
+<li><strong>Tests:</strong> energy balance closes to 1e-9 relative on
+every unit; an isentropic efficiency of 1.0 gives Δs ≈ 0.</li>
+</ul>
+<h3 id="phase-3--discretized-counterflow-hx-and-pinch">Phase 3 —
+Discretized counterflow HX and pinch</h3>
+<ul>
+<li><code>hx.py</code>: split the exchanger into N equal-duty segments
+(default N = 200). For each segment boundary, compute hot and cold
+enthalpies, get temperatures from the property layer, and return the T–Q
+profile, the minimum ΔT, and the pinch location.</li>
+<li>Support three modes: (a) both inlets plus hot outlet enthalpy →
+solve cold outlet; (b) both inlets plus a ΔT_min target → solve the
+maximum duty; (c) a UA rating mode (stretch goal).</li>
+<li><code>intermediate.py</code>: given the P-1 discharge state, the
+<code>T-1</code> inlet state, the expander efficiency and ΔT_min, find
+the <strong>lowest</strong> intermediate pressure such that:
+<ul>
+<li>the hot stream leaves <code>E-1</code> as saturated or subcooled
+liquid, and</li>
+<li>min ΔT along <code>E-1</code> ≥ ΔT_min. Use <code>brentq</code> over
+pressure, bracketed between a safe lower bound and just under the
+critical pressure (or the cricondentherm for air). Return the T–Q
+profile for plotting.</li>
+</ul></li>
+<li><strong>Tests:</strong>
+<ul>
+<li>A synthetic ideal-gas case with an analytic answer.</li>
+<li>Validation: <code>intermediate_pressure</code> for the liquid-air
+and LNG presets lands within ±10% of the patent values (≈455 and ≈520
+psia) under the patent’s stated conditions. Log the actual values and
+conditions in <a
+href="VALIDATION.html"><code>docs/VALIDATION.md</code></a>.</li>
+</ul></li>
+<li><strong>Done when:</strong> both validation tests pass, or any gap
+is explained in <a href="VALIDATION.html">VALIDATION.md</a> with the
+assumptions that differ.</li>
+</ul>
+<h3 id="phase-4--flowsheet-solver-and-fig-1">Phase 4 — Flowsheet solver
+and Fig. 1</h3>
+<ul>
+<li><code>flowsheet.py</code>: a directed graph of units and streams.
+Stream IDs mirror the patent’s reference numbers where practical.
+<ul>
+<li>Solve in sequential-modular order.</li>
+<li>Detect recycles automatically and choose tear streams.</li>
+<li>Converge with Wegstein iteration and fall back to Broyden
+(<code>scipy.optimize.root</code>).</li>
+<li>Report iteration count, residuals and a convergence status.</li>
+</ul></li>
+<li><code>cases/fig1.py</code>: builds the Fig. 1 flowsheet from a
+pydantic <code>CaseInputs</code>.</li>
+<li><code>baseline.py</code>: builds the matching single-expansion
+baseline.</li>
+<li><strong>Outputs</strong> (a pydantic <code>CycleResult</code>):
+every stream’s state, every unit’s power and duty, net power, pump work,
+heat input, fuel heat rate (where fuel is used), specific output (kWh
+per tonne of cryogen), gain versus baseline, and the E-1 T–Q
+profile.</li>
+<li><strong>Tests:</strong> global energy balance closes; the solver
+converges from three different initial guesses; results are identical
+across runs.</li>
+</ul>
+<h3 id="phase-5--remaining-presets-and-heat-sources">Phase 5 — Remaining
+presets and heat sources</h3>
+<ul>
+<li><code>heat_sources.py</code>: exhaust streams (gas turbine or
+engine) with temperature, mass flow and composition, and h(T) from an
+ideal-gas mixture. Also molten salt (constant cp) and a duct burner
+(fuel flow → temperature rise, fixed LHV).</li>
+<li>Presets:
+<ul>
+<li><code>fig2.py</code>: liquid air plus a closed methane Rankine
+loop.</li>
+<li><code>fig3.py</code>: engine exhaust plus an ORC. Make the ORC fluid
+configurable, defaulting to one named in the patent.</li>
+<li><code>fig4.py</code>: gas turbine exhaust plus ORC with an exhaust
+split fraction. Verify the patent’s split range.</li>
+<li><code>fig5.py</code>: LNG plus engine and turbocharger air.</li>
+</ul></li>
+<li><strong>Tests:</strong> each preset converges at default inputs,
+closes its energy balance, and beats its baseline’s net power. If one
+doesn’t, record it in <a href="VALIDATION.html">VALIDATION.md</a> rather
+than tuning inputs to force it.</li>
+</ul>
+<h3 id="phase-6--studies">Phase 6 — Studies</h3>
+<ul>
+<li><code>sweep.py</code>: 1-D and 2-D parameter sweeps over any numeric
+input. Run them in parallel with <code>concurrent.futures</code> and
+return tidy tables.</li>
+<li><code>optimize.py</code>: maximize net power (or specific output)
+over a chosen set of inputs within bounds, using
+<code>scipy.optimize.minimize</code> (SLSQP) with multiple starting
+points. Converge E-1 inside each objective evaluation.</li>
+<li><strong>Done when:</strong> the P-1 discharge sweep for Fig. 1
+produces a smooth curve with no solver failures across 1000–2500
+psia.</li>
+</ul>
+<h3 id="phase-7--dispatch-and-economics">Phase 7 — Dispatch and
+economics</h3>
+<ul>
+<li>Inputs: an 8760-row hourly price CSV, fuel price, tank capacity,
+liquefaction power and specific energy (user-supplied; never
+hard-coded), discharge case (whose power and fuel figures come from the
+solved cycle), and a pipeline send-out limit for LNG.</li>
+<li>Dispatch rules:
+<ul>
+<li><strong>Price threshold:</strong> discharge when price is above X,
+charge when below Y.</li>
+<li><strong>Fixed daily window:</strong> default discharge window
+18:00–22:00. Verify this against the patent’s peak-period
+description.</li>
+<li><strong>Perfect-foresight LP:</strong> <code>linprog</code> with
+HiGHS; variables are charge/discharge per hour and tank level;
+constraints are capacity, power limits and send-out limit.</li>
+</ul></li>
+<li>Outputs: hourly schedule, tank level, annual net revenue, discharge
+hours per year, energy ratio, fuel heat rate.</li>
+<li><strong>Tests:</strong> the LP matches brute force on a 48-hour toy
+case; the tank never exceeds its limits.</li>
+</ul>
+<h3 id="phase-8--web-routes-jobs-and-json-endpoints">Phase 8 — Web
+routes, jobs and JSON endpoints</h3>
+<p>Flask app built with <code>create_app()</code>. Form data and JSON
+are both validated with the pydantic schemas in <code>schemas.py</code>.
+Every form field maps to a <code>CaseInputs</code> field, converted to
+SI through <code>units.py</code>.</p>
+<p><strong>HTML routes</strong> (Post/Redirect/Get):</p>
+<ul>
+<li><code>GET /</code> redirects to
+<code>/flowsheet?case=fig1</code>.</li>
+<li><code>GET /flowsheet?case=…</code> renders the input form with the
+preset defaults.</li>
+<li><code>POST /solve</code> validates the form and starts a solve job.
+It redirects to <code>/results/&lt;id&gt;</code>.</li>
+<li><code>GET /results/&lt;id&gt;</code> shows a “Solving…” page (with
+<code>&lt;meta http-equiv="refresh" content="1"&gt;</code> for the no-JS
+fallback) until the job is done. Then it shows the full flowsheet page
+with results.</li>
+<li><code>GET /heat-exchangers/&lt;id&gt;</code>,
+<code>GET /sweeps</code>, <code>POST /sweeps</code>,
+<code>GET /dispatch</code>, <code>POST /dispatch</code> (multipart CSV
+upload through Flask’s <code>request.files</code>).</li>
+<li><code>GET /export/&lt;id&gt;.csv</code> and
+<code>GET /export/&lt;id&gt;.json</code>.</li>
+<li>Units: <code>?units=si|us</code>, remembered in a cookie. Conversion
+happens only when rendering, through <code>units.py</code> Jinja
+filters.</li>
+</ul>
+<p><strong>JSON routes</strong> (under <code>/api</code>, used only by
+the page scripts for live updates):</p>
+<ul>
+<li><code>GET /api/cases</code> lists presets with their default
+inputs.</li>
+<li><code>POST /api/intermediate</code> runs just the E-1
+intermediate-pressure solve for live slider feedback. It returns the
+pressure, temperature and T–Q profile.</li>
+<li><code>GET /api/jobs/&lt;id&gt;</code> returns the job status and,
+once done, a link to the result.</li>
+</ul>
+<p><strong>Jobs:</strong> solves, sweeps, optimizations and dispatch
+runs go through <code>jobs.py</code>, which uses a
+<code>concurrent.futures</code> process pool (the dev server is a single
+process). Results are saved as JSON in
+<code>var/results/&lt;id&gt;.json</code>, so they survive dev-server
+reloads.</p>
+<p><strong>Errors:</strong> JSON errors are
+<code>{code, message, detail}</code>. HTML errors re-render the form
+with the message next to the field that caused it.</p>
+<p><strong>Tests</strong> (Flask test client): every route returns
+200/302 as expected; invalid input re-renders with errors; unsolved
+pages show <code>—</code>.</p>
+<p><strong>Done when:</strong> a solve through <code>POST /solve</code>
+gives a stored <code>CycleResult</code> that matches a direct Python
+solve bit-for-bit.</p>
+<h3 id="phase-9--pages-and-ui">Phase 9 — Pages and UI</h3>
+<p>Server-rendered Jinja pages styled with the §7 tokens (there is no
+separate mockup). Each page is a normal HTML page with forms. A small
+per-page JS file adds live behavior on top. Pages:</p>
+<ol type="1">
+<li><strong>Flowsheet</strong> (<code>flowsheet.html</code>)
+<ul>
+<li><strong>Left panel:</strong> a form with the case preset select, the
+LNG / liquid air choice (radio buttons styled as a segmented control,
+set by the preset), and range sliders
+(<code>&lt;input type="range"&gt;</code> with a paired number box) for
+P-1 discharge, P-2 discharge, min HX approach and expander efficiency.
+Buttons: <strong>Solve cycle</strong> (submits the form), “Compare to
+baseline” (a link to the baseline section of the results) and “Export”
+(links to CSV/JSON).</li>
+<li><strong>Center:</strong> the flowsheet as <strong>inline SVG
+rendered on the server</strong> by <code>diagram.py</code> from the
+case’s layout. Pass 1 runs along the top and pass 2 along the bottom,
+and E-1 spans both rows. Streams are colored by temperature (cold, warm,
+hot tokens). Each unit is a focusable
+<code>&lt;a&gt;</code>/<code>&lt;button&gt;</code> in the SVG. Clicking
+it (or pressing Enter) shows that unit in the inspector. Without JS, it
+links to <code>?unit=&lt;id&gt;</code>.</li>
+<li><strong>Below the diagram:</strong> the E-1 T–Q composite (Plotly)
+with the pinch marked, and an intermediate-pressure card.</li>
+<li><strong>Right panel:</strong> the inspector (unit description plus a
+stream/unit table) and the results grid: net power, pump work, T-1, T-2,
+fuel heat rate, specific output, and gain versus baseline.</li>
+<li><strong>Header:</strong> the status text (“Not solved”, “Solving…”,
+“Converged in N iterations”, “Failed: reason”) and the tabs.</li>
+<li><code>flowsheet.js</code>: when a slider moves, POST the form to
+<code>/api/intermediate</code> after a 250 ms debounce and update the
+T–Q chart and the intermediate-pressure card. A full solve only happens
+on <strong>Solve cycle</strong>. While a job runs, poll
+<code>/api/jobs/&lt;id&gt;</code> and load the result page when it’s
+done. Without JS, the meta-refresh fallback does the same.</li>
+</ul></li>
+<li><strong>Heat exchangers:</strong> T–Q plots for every exchanger,
+plus a T–s diagram with the saturation dome and the cycle overlaid. The
+data is embedded in the page as JSON
+(<code>&lt;script type="application/json"&gt;</code>) and drawn by
+<code>charts.js</code>.</li>
+<li><strong>Sweeps:</strong> a form to pick one or two inputs and their
+ranges. Submitting runs a job. The result page shows a line chart or
+heatmap and a table. Each table row (and each chart point, via JS) links
+to <code>/flowsheet</code> with those inputs filled in.</li>
+<li><strong>Dispatch &amp; economics:</strong> a multipart form for the
+CSV upload, market and asset inputs, and the dispatch rule. The result
+page shows a typical-day price chart with the charge/discharge windows
+shaded, a tank-level chart, a KPI row, a schedule table (paginated on
+the server) and a CSV download link.</li>
+</ol>
+<p><strong>UI rules</strong></p>
+<ul>
+<li>Any result not yet computed shows <code>—</code>. Illustrative
+charts are labeled “Illustrative until solved”.</li>
+<li>Keyboard accessible: real buttons, inputs and labels;
+<code>aria-label</code> on icon-only buttons.</li>
+<li>Works without JS for every action (solve, sweep, dispatch, export).
+JS only adds live preview, charts, click-to-inspect and polling. Without
+JS, charts fall back to data tables.</li>
+<li>No inline event handlers and no JS frameworks. Each page loads only
+its own module plus <code>charts.js</code> and the vendored Plotly.</li>
+<li>Web app only. Minimum supported width is 1280 px. Add a read-only
+results layout below 768 px as a stretch goal.</li>
+</ul>
+<p><strong>Done when:</strong> the Playwright smoke test (Python, system
+Chromium, run by <code>make e2e</code>) passes: load Fig. 1 → move the
+P-1 slider → solve → the results grid fills in → switch to Dispatch →
+upload a fixture CSV → the KPIs fill in.</p>
+<h3 id="phase-10--polish">Phase 10 — Polish</h3>
+<ul>
+<li>Save and load cases as JSON; export results as CSV and a PDF report
+(stretch goal).</li>
+<li><a href="VALIDATION.html"><code>docs/VALIDATION.md</code></a>
+complete for all presets.</li>
+<li>README with setup, architecture diagram (Mermaid) and a limitations
+section.</li>
+</ul>
+<hr />
+<h2 id="5-validation-checklist-docsvalidationmd">5. Validation checklist
+(<a href="VALIDATION.html"><code>docs/VALIDATION.md</code></a>)</h2>
+<p>For each preset, record the inputs used, the computed intermediate
+pressure and temperature, the net power, the gain versus baseline, the
+energy balance residual, and the patent value it’s compared against
+(with figure/column reference). Pass criteria:</p>
+<ul>
+<li>Intermediate pressure within ±10% of the patent value where the
+patent gives one.</li>
+<li>Energy balance residual below 1e-6 relative.</li>
+<li>The double-expansion cycle beats its baseline.</li>
+</ul>
+<hr />
+<h2 id="6-known-modeling-risks">6. Known modeling risks</h2>
+<ul>
+<li><strong>Near-critical property behavior:</strong> cp spikes and
+CoolProp flash failures. Mitigate with an explicit phase, a finer HX
+discretization near the pseudocritical temperature (adaptive refinement
+where cp changes fast), and clear error messages.</li>
+<li><strong>Air as a pseudo-pure fluid:</strong> CoolProp’s pseudo-pure
+Air has an ancillary-based bubble/dew glide, but its two-phase flashes
+need workarounds (D21) and it is not a true mixture model (no
+composition shift between phases). Add an optional N₂/O₂/Ar mixture
+later.</li>
+<li><strong>LNG as pure methane:</strong> this understates the
+condensing glide. Keep the property interface mixture-ready.</li>
+<li><strong>Recycle convergence:</strong> start the tear-stream guess
+from the baseline solution.</li>
+<li><strong>Freedom to operate:</strong> this project models a patented
+process. Add a README note that commercial use may need a license and
+legal review.</li>
+</ul>
+<hr />
+<h2 id="7-design-tokens-go-in-staticcsstokenscss">7. Design tokens (go
+in <code>static/css/tokens.css</code>)</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">--ground</span><span class="ch">:</span> <span class="cn">#F3F2EE</span><span class="op">;</span>   <span class="va">--panel</span><span class="ch">:</span> <span class="cn">#FAF9F6</span><span class="op">;</span>   <span class="va">--card</span><span class="ch">:</span> <span class="cn">#FFFFFF</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">--ink</span><span class="ch">:</span> <span class="cn">#1A1C1E</span><span class="op">;</span>      <span class="va">--muted</span><span class="ch">:</span> <span class="cn">#5B5F63</span><span class="op">;</span>   <span class="va">--line</span><span class="ch">:</span> <span class="cn">#D9D6CE</span><span class="op">;</span>  <span class="va">--line-strong</span><span class="ch">:</span> <span class="cn">#BDB9AF</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">--cold</span><span class="ch">:</span> <span class="cn">#1E5AA0</span><span class="op">;</span>     <span class="va">--warm</span><span class="ch">:</span> <span class="cn">#D08A5C</span><span class="op">;</span>    <span class="va">--hot</span><span class="ch">:</span> <span class="cn">#9A3D10</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">--accent</span><span class="ch">:</span> <span class="cn">#8FB8E8</span><span class="op">;</span>   <span class="va">--selected-bg</span><span class="ch">:</span> <span class="cn">#EAF1FA</span><span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="va">--font-sans</span><span class="ch">:</span> <span class="st">&quot;IBM Plex Sans&quot;</span><span class="op">,</span> <span class="dv">system-ui</span><span class="op">,</span> <span class="dv">sans-serif</span><span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="va">--font-mono</span><span class="ch">:</span> <span class="st">&quot;IBM Plex Mono&quot;</span><span class="op">,</span> <span class="dv">ui-monospace</span><span class="op">,</span> <span class="dv">monospace</span><span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="va">--radius</span><span class="ch">:</span> <span class="dv">8</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<ul>
+<li><strong>Header:</strong> 56 px, dark <code>--ink</code> background,
+tabs underlined in <code>--accent</code> when active.</li>
+<li><strong>Layout:</strong> left panel 290 px, right panel 320 px,
+flexible center.</li>
+<li><strong>Numbers:</strong> always in <code>--font-mono</code>.</li>
+<li><strong>Section labels:</strong> 12 px, uppercase, 0.04em
+letter-spacing, <code>--muted</code>.</li>
+</ul>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <p>Copyright 2026 Just In Time Energy Company.</p>
+  </div>
+</footer>
+</body>
+</html>

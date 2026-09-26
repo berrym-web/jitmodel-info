@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions · jitmodel</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="../index.html" title="jitmodel — how it was built"><img class="logo" src="../assets/jit-logo.png" alt="Just In-Time Energy Company"></a>
+    <nav aria-label="Documents">
+      <a href="../index.html">Home</a>
+      <a href="transcript.html">Transcript</a>
+      <a href="README.html">README</a>
+      <a href="PLAN.html">Plan</a>
+      <a href="DECISIONS.html">Decisions</a>
+      <a href="VALIDATION.html">Validation</a>
+      <a href="CLAUDE.html">CLAUDE.md</a>
+    </nav>
+  </div>
+</header>
+<div class="doc-layout has-toc">
+<nav id="TOC" aria-label="Contents">
+<p class="toc-title">Contents</p>
+<ul>
+<li><a href="#decisions" id="toc-decisions">Decisions</a>
+<ul>
+<li><a
+href="#plan-vs-patent-discrepancies-checked-2026-09-24-against-us-11598261-b2-full-text"
+id="toc-plan-vs-patent-discrepancies-checked-2026-09-24-against-us-11598261-b2-full-text">Plan
+vs. patent discrepancies (checked 2026-09-24 against US 11,598,261 B2
+full text)</a></li>
+<li><a href="#project-decisions-user-confirmed-2026-09-24"
+id="toc-project-decisions-user-confirmed-2026-09-24">Project decisions
+(user-confirmed 2026-09-24)</a></li>
+<li><a href="#phase-1--properties-layer-2026-09-25"
+id="toc-phase-1--properties-layer-2026-09-25">Phase 1 — properties layer
+(2026-09-25)</a></li>
+<li><a href="#phase-2--unit-operations-2026-09-25"
+id="toc-phase-2--unit-operations-2026-09-25">Phase 2 — unit operations
+(2026-09-25)</a></li>
+<li><a href="#phase-3--hx-and-intermediate-pressure-2026-09-25"
+id="toc-phase-3--hx-and-intermediate-pressure-2026-09-25">Phase 3 — HX
+and intermediate pressure (2026-09-25)</a></li>
+<li><a href="#phase-4--flowsheet-solver-and-fig-1-2026-09-25"
+id="toc-phase-4--flowsheet-solver-and-fig-1-2026-09-25">Phase 4 —
+flowsheet solver and Fig. 1 (2026-09-25)</a></li>
+<li><a href="#phase-5a--heat-sources-fig-1-coupling-fig-4-2026-09-25"
+id="toc-phase-5a--heat-sources-fig-1-coupling-fig-4-2026-09-25">Phase 5a
+— heat sources, Fig. 1 coupling, Fig. 4 (2026-09-25)</a></li>
+<li><a href="#phase-5b--fig-3-fig-5-2026-09-25"
+id="toc-phase-5b--fig-3-fig-5-2026-09-25">Phase 5b — Fig. 3, Fig. 5
+(2026-09-25)</a></li>
+<li><a href="#phase-5c--fig-2-fig-4a-2026-09-25"
+id="toc-phase-5c--fig-2-fig-4a-2026-09-25">Phase 5c — Fig. 2, Fig. 4A
+(2026-09-25)</a></li>
+<li><a href="#phase-6--studies-2026-09-25"
+id="toc-phase-6--studies-2026-09-25">Phase 6 — studies
+(2026-09-25)</a></li>
+<li><a href="#phase-7--dispatch-2026-09-25"
+id="toc-phase-7--dispatch-2026-09-25">Phase 7 — dispatch
+(2026-09-25)</a></li>
+<li><a href="#phase-8--web-routes-jobs-json-2026-09-25"
+id="toc-phase-8--web-routes-jobs-json-2026-09-25">Phase 8 — web routes,
+jobs, JSON (2026-09-25)</a></li>
+<li><a href="#phase-9--ui-2026-09-25"
+id="toc-phase-9--ui-2026-09-25">Phase 9 — UI (2026-09-25)</a></li>
+<li><a href="#phase-10--polish-2026-09-25"
+id="toc-phase-10--polish-2026-09-25">Phase 10 — polish
+(2026-09-25)</a></li>
+</ul></li>
+</ul>
+</nav>
+<main class="doc">
+<p class="source-note">Rendered from <code>docs/DECISIONS.md</code> in the jitmodel repository, as of September 26, 2026 (commit 43f6277).</p>
+<h1 id="decisions">Decisions</h1>
+<p>One short entry per non-obvious modeling or project decision. Patent
+citations are by reference numeral / figure until column-line citations
+are added from the PDF.</p>
+<h2
+id="plan-vs-patent-discrepancies-checked-2026-09-24-against-us-11598261-b2-full-text">Plan
+vs. patent discrepancies (checked 2026-09-24 against US 11,598,261 B2
+full text)</h2>
+<ul>
+<li><strong>D1 — Intermediate pressure, LA.</strong> Summary gives ≈455
+psia (col. 3 ll. 32-34); Fig. 3 gives ≈455 psia and ≈−230 °F (col. 14
+ll. 27-29). Fig. 2 says “usually about 460 psia” (col. 9 ll. 54-55).
+Validation target: 455 psia (±10% covers both).</li>
+<li><strong>D2 — Intermediate pressure, LNG.</strong> ≈520 psia
+(Summary, col. 3 ll. 32-34; Fig. 1 “usually about 520 psia”, col. 6 ll.
+59-60). Stated “assuming that 100% of the pumped compressed liquefied
+fluid is re-condensed”. Validation uses 100% re-condensing.</li>
+<li><strong>D3 — P-1 discharge range.</strong> Summary says 1000–2000
+psia (col. 3 ll. 8-9); the figure descriptions say 1000–2500 psia (e.g.
+Fig. 1, col. 5 ll. 36-37). Use 1000–2500 psia as the slider/sweep
+range.</li>
+<li><strong>D4 — Mechanism.</strong> Patent says the intermediate
+pressure is the saturation pressure at the temperature the hot stream is
+cooled to, which depends on the E-1 approach temperature. The plan’s
+internal-pinch formulation is the general form of this (the pinch may be
+internal, not at the cold end). Keep the plan’s.</li>
+<li><strong>D5 — Fig. 1 pass-2 heating has no fired heater.</strong>
+Pass 2 (pump 126 → warming HX 128 → LT recuperator 122 → T-2 130) is
+heated only by the warming fluid and by T-1 exhaust in recuperator 122.
+All external heat enters pass 1 (GT exhaust HX 118 and 112, HT
+recuperator 114 via splitter 110 / mixer 116). The plan’s generic “H-2
+re-heats” becomes optional per preset.</li>
+<li><strong>D6 — Fig. 1 P-2 discharge.</strong> Patent: 500–1500 psi
+above the receiving pipeline pressure. P-2 default is defined relative
+to pipeline pressure for LNG presets.</li>
+<li><strong>D7 — Fig. 3 ORC fluid.</strong> Patent: “preferably methane”
+(col. 15 ll. 49-50). Default ORC fluid = Methane. Fig. 3 ORC condensate
+≈−130 °F / 530 psia (col. 16 ll. 36-38; extra reference point, sanity
+check only).</li>
+<li><strong>D8 — Fig. 4 claim.</strong> “including the ORC using a
+portion (about 25%-30%) of the exhaust stream, will produce about 1.5
+times the power of the gas turbine generator 432” (col. 19 ll. 1-4).
+Exhaust split default 0.275, range 0.25–0.30. 1.5× is a sanity check
+only. The Fig. 4 ORC is “not shown” in the patent, so its configuration
+is our assumption.</li>
+<li><strong>D9 — Peak window.</strong> Patent background: evening peak
+“approximately 6 PM to 10 PM”. Default 18:00–22:00 confirmed.</li>
+<li><strong>D10 — Fig. 5 turbocharger air.</strong> ≈45 psia and ≈450 °F
+at the turbocharger discharge (col. 20 ll. 46-47).</li>
+<li><strong>D11 — No stream tables.</strong> The patent has no
+heat-and-material balances or performance tables. The only quantitative
+anchors are the pressures/temperatures/ranges above. <a
+href="VALIDATION.html">VALIDATION.md</a> is limited to them.</li>
+</ul>
+<h2 id="project-decisions-user-confirmed-2026-09-24">Project decisions
+(user-confirmed 2026-09-24)</h2>
+<ul>
+<li><strong>D12 — Stack and serving.</strong> A regular server-rendered
+web app: Flask + Jinja + plain HTML/CSS + small vanilla JS modules, with
+no Node/npm, bundler or client-side framework (this replaces the plan’s
+original FastAPI + React/Vite). <code>make dev</code> =
+<code>flask run --debug</code> on 0.0.0.0:5001 (dev only, no auth).
+Pages work without JS; JS only adds live slider preview, charts,
+click-to-inspect and job polling.</li>
+<li><strong>D13 — Repo root</strong> is <code>~/jitmodel</code>, with
+<code>pyproject.toml</code>, the <code>jitmodel/</code> package and
+<code>.venv/</code> at the root.</li>
+<li><strong>D14 — UI</strong> is built from §7 tokens and the Phase 9
+description; there is no separate mockup. The flowsheet diagram is
+inline SVG rendered on the server (<code>web/diagram.py</code>) instead
+of a JS canvas library.</li>
+<li><strong>D15 — Validation defaults</strong> (patent does not state
+them): E-1 ΔT_min 5 °F (2.78 K), P-1 discharge 1500 psia, pump η_s 0.75,
+expander η_s 0.85, generator η 0.97, T-1 inlet per preset. Results are
+not tuned to hit targets.</li>
+<li><strong>D16 — Python toolchain.</strong> Python 3.13 (Debian apt)
+with <code>python3 -m venv .venv</code> +
+<code>pip install -e '.[dev]'</code>, replacing the plan’s original
+Python 3.12 + <code>uv</code>.</li>
+<li><strong>D17 — Browser assets.</strong> Plotly.js and IBM Plex fonts
+are vendored under <code>jitmodel/web/static/</code> (version, source
+URL and SHA-256 recorded here when added); no CDN at runtime. The E2E
+smoke test uses the Python <code>playwright</code> package with the
+system <code>/usr/bin/chromium</code>; <code>playwright install</code>
+is never run.</li>
+<li><strong>D18 — Git hooks.</strong> A plain
+<code>.githooks/pre-commit</code> script runs <code>make lint</code>
+(enabled with <code>core.hooksPath</code>); the <code>pre-commit</code>
+framework is not used.</li>
+<li><strong>D19 — Package vetting.</strong> Every Python package is
+checked on PyPI before it’s downloaded (name, source repo, release
+history, what requires it). Phase 0 audit (2026-09-25): all 35 installed
+packages verified. The three young ones are <code>ast-serialize</code>
+and <code>librt</code> (mypy deps, mypyc org) and
+<code>typing-inspection</code> (pydantic dep, pydantic org).</li>
+</ul>
+<h2 id="phase-1--properties-layer-2026-09-25">Phase 1 — properties layer
+(2026-09-25)</h2>
+<ul>
+<li><strong>D20 — Methane temperature range.</strong> CoolProp’s Methane
+EOS (Setzmann &amp; Wagner 1991) is validated 90.6941–625 K. CoolProp
+extrapolates above 625 K without error; the round-trip tests cover up to
+700 K (<a href="PLAN.html">PLAN.md</a> range) and pass. States above
+<code>t_max()</code> are allowed but will be flagged in results (Phase
+4+). The lower end is the triple point / melting line, not 90 K: at 20
+MPa methane freezes at ~95.7 K. <code>state_pt</code> below the melting
+line raises <code>PropertyError</code>.</li>
+<li><strong>D21 — Pseudo-pure Air two-phase handling.</strong> CoolProp
+“Air” is pseudo-pure (Lemmon et al. 2000) with a bubble/dew glide from
+ancillaries (e.g. 106.2 / 108.1 K at 1 MPa), so <a
+href="PLAN.html">PLAN.md</a> §6’s “ignores the glide” is only partly
+true. CoolProp rejects P,T inside the glide, and its P,h flash near the
+bubble line disagrees with its own P,Q saturation (fails, or reports
+liquid at quality ≈0.007). Below Pc we determine the phase ourselves
+against the P,Q bubble/dew states; T, h and s are exactly linear in
+quality at fixed P in CoolProp’s pseudo-pure model, so quality is
+recovered exactly and the state is flashed with P,Q. Single-phase states
+get the phase imposed.</li>
+<li><strong>D22 — Near-critical band.</strong> Round-trip tests exclude
+|T−Tc| &lt; 2 K with |P−Pc| &lt; 5 % of Pc. At exactly P = Pc with T
+&lt; Tc, CoolProp’s flash fails; the pressure is nudged up by 1e-6
+relative and retried.</li>
+<li><strong>D23 — Caching and tables.</strong> Flash results are
+LRU-cached per fluid instance, keyed on inputs rounded to 12 significant
+digits (the flash uses the rounded inputs, so results are
+deterministic). The optional <code>BICUBIC&amp;HEOS</code> backend
+writes its tables to <code>var/coolprop-tables/</code> (git-ignored),
+never <code>~/.CoolProp</code>.</li>
+<li><strong>D24 — Phase 1 benchmark</strong> (HEOS, 10k distinct
+<code>state_ph</code> calls, no cache, aarch64 container): Methane 0.39
+s, Air 0.31 s (target &lt; 1 s). A 20k-point random round-trip stress
+test per fluid: 0 failures, worst relative T error 9.3e-10.</li>
+</ul>
+<h2 id="phase-2--unit-operations-2026-09-25">Phase 2 — unit operations
+(2026-09-25)</h2>
+<ul>
+<li><strong>D25 — Sign convention.</strong> <code>heat_in</code> and
+<code>work_in</code> are W into the fluid (pump work_in &gt; 0, expander
+&lt; 0); <code>electric_power</code> is W at the terminals (&gt; 0
+generated, &lt; 0 consumed). Every unit satisfies Σ(m h)_in + heat_in +
+work_in = Σ(m h)_out; tests hold it to 1e-9 relative.</li>
+<li><strong>D26 — Drive efficiencies.</strong> Expanders take
+<code>eta_gen</code> (<a href="PLAN.html">PLAN.md</a>). Pumps take
+<code>eta_motor</code>, which the plan doesn’t mention; it defaults to
+1.0, so pump electrical demand equals shaft power unless the user sets
+it.</li>
+<li><strong>D27 — Mixer outlet pressure</strong> is the lowest inlet
+pressure (higher-pressure inlets are throttled, isenthalpic).</li>
+<li><strong>D28 — Accumulator (V-1)</strong> passes the stream through
+and returns a warning, rather than raising, when the inlet is not
+saturated/subcooled liquid (quality &gt; 1e-6). The flowsheet solver
+decides whether that’s a failure, because intermediate recycle iterates
+may be temporarily two-phase.</li>
+<li><strong>D29 — Splitter</strong> gives the last outlet the remainder
+of the mass flow, so mass closes exactly.</li>
+<li><strong>D30 — Heater</strong> has outlet-temperature and duty modes
+plus an optional pressure drop (default 0). Coupling to a heat-source
+stream comes in Phase 5.</li>
+</ul>
+<h2 id="phase-3--hx-and-intermediate-pressure-2026-09-25">Phase 3 — HX
+and intermediate pressure (2026-09-25)</h2>
+<ul>
+<li><strong>D31 — E-1 hot outlet.</strong> The hot side is condensed
+exactly to saturated liquid (bubble point at P_int). That is the least
+duty that meets “fully condensed”, so it’s the most feasible choice.
+Subcooling only adds duty and tightens the cold end.</li>
+<li><strong>D32 — Pinch location.</strong> For both fluids at the patent
+conditions the pinch is internal, just above the hot dew point, where
+the supercritical cold stream’s cp peak meets the desuperheating vapor.
+So P_int doesn’t depend on the T-1 inlet temperature, T-1 efficiency, or
+recuperation ahead of E-1 (<a
+href="VALIDATION.html">docs/VALIDATION.md</a>).</li>
+<li><strong>D33 — Lowest-root search.</strong> The feasibility margin
+(min ΔT − ΔT_min) is scanned upward over 24 log-spaced pressures from
+the cold-end bound (condensing T = cold inlet T + ΔT_min) to 0.995·Pc,
+and the first sign change is refined with brentq. That guarantees the
+lowest feasible pressure even if the margin isn’t monotonic. About 30
+E-1 evaluations and ~0.4-0.5 s per solve.</li>
+<li><strong>D34 — HX discretization.</strong> Equal-duty grid (N = 200)
+plus explicit nodes at both streams’ bubble/dew points (subcritical
+sides only), with bounded scalar refinement of the minimum in the two
+adjacent segments. P_int is identical to 3 decimals in psia for N = 50,
+200 and 800. No pressure drop through exchangers in v1.</li>
+<li><strong>D35 — Analytic test fluids.</strong>
+<code>tests/toy_fluids.py</code> has a constant-cp gas and a toy
+condensable fluid (constant latent heat, Clausius–Clapeyron). They are
+used only for closed-form solver checks, never for results.</li>
+</ul>
+<h2 id="phase-4--flowsheet-solver-and-fig-1-2026-09-25">Phase 4 —
+flowsheet solver and Fig. 1 (2026-09-25)</h2>
+<ul>
+<li><strong>D36 — Fig. 1 default inputs</strong> (the patent doesn’t
+state them):
+<ul>
+<li>m_dot 10 kg/s; pipeline 1000 psia; P-2 2000 psia (patent: 500–1500
+psi above pipeline, col. 7 ll. 5-7).</li>
+<li>Warming exchangers 108/128 to 75 °F (midpoint of the patent’s 50–100
+°F, col. 5 ll. 58-59).</li>
+<li>T-1 inlet 600 °F (inside methane’s validated range, D20; GT exhaust
+range is 400–2000 °F, col. 7 ll. 38-40).</li>
+<li>Split to recuperator 114 is 0.5. All are inputs; none are tuned to a
+result.</li>
+</ul></li>
+<li><strong>D37 — P_int as a design spec.</strong> E-1 sets P_int, but
+P_int sits upstream of T-1, so it is an outer loop around the flowsheet,
+not a tear: solve_intermediate (with the flowsheet’s actual E-1 hot
+inlet T after the first pass) → rebuild with T-1 P_out = P_int → solve →
+repeat until P_int changes &lt; 1e-7 relative (2 passes at
+defaults).</li>
+<li><strong>D38 — Baseline pump discharge</strong> is max(P-1, P-2). The
+plan says “same pressures”, and the baseline has one pump. Using P-1
+alone (1500 psia against a 1000 psia pipeline) would understate the
+conventional cycle.</li>
+<li><strong>D39 — Fig. 1 topology.</strong> 112 and 118 are heaters with
+temperature specs (GT-exhaust coupling comes in Phase 5). Mixer 116 runs
+in the patent’s preferred equal-temperature mode (col. 6 ll. 44-48): 112
+heats to 114’s cold outlet T. 114 and 122 run at max duty for ΔT_min.
+Pass 2 has no fired heater (D5).</li>
+<li><strong>D40 — Tear selection</strong> is a brute-force minimum
+feedback edge set over streams on cycles (Tarjan SCCs), smallest set
+first, preferring streams the caller supplied guesses for. Fig. 1 needs
+two tears: T-1 exhaust (120-114) and E-1 hot inlet (122-106).</li>
+<li><strong>D41 — Convergence.</strong> Bounded element-wise Wegstein (q
+∈ [−5, 0]), tolerance 1e-9 on tear variables scaled by |value| (enthalpy
+scale floored at 1e5 J/kg); fallback Broyden (<code>broyden1</code>)
+with initial Jacobian −I so its first step is direct substitution.
+scipy’s default initial Jacobian stepped Fig. 1 into an infeasible E-1
+state.</li>
+<li><strong>D42 — Max-duty exchangers with inlets ≤ ΔT_min
+apart</strong> return zero duty (with the approach warning) instead of
+raising, so bad intermediate iterates don’t abort a solve. This replaces
+the Phase 3 behavior.</li>
+</ul>
+<h2 id="phase-5a--heat-sources-fig-1-coupling-fig-4-2026-09-25">Phase 5a
+— heat sources, Fig. 1 coupling, Fig. 4 (2026-09-25)</h2>
+<ul>
+<li><strong>D43 — Ideal-gas mixtures</strong>
+(<code>props/ideal_gas.py</code>). Species ideal-gas h, s°, cp come from
+CoolProp’s alpha0 part (N2, O2, Ar, CO2, H2O), tabulated on a 1 K grid
+from 200 to 2500 K and linearly interpolated. The reference is sensible
+enthalpy 0 at 25 °C, consistent with LHV at 25 °C with H2O vapor.
+Checked against ideal-gas air tables (Δh 298→1000 K within 0.2 %). Water
+in exhaust is always vapor; streams below their water dew point are
+flagged, and condensation isn’t modeled.</li>
+<li><strong>D44 — Burning the cycle’s own air</strong> (user choice). At
+the burner inlet the real-gas air stream is re-expressed as an ideal-gas
+air mixture at the same T and P (<code>ToIdealGas</code>). The reference
+change is booked as <code>heat_in</code> under category “reference”, so
+the energy balance stays exact and it isn’t counted as heat input. The
+unit warns if the real-gas departure exceeds 2 kJ/kg.</li>
+<li><strong>D45 — Combustion.</strong> Fuel is pure methane at 25 °C,
+burned completely (CH4 + 2 O2 → CO2 + 2 H2O). LHV = 802.29 kJ/mol =
+50.01 MJ/kg, computed from NIST-JANAF formation enthalpies (CH4 −74.87,
+CO2 −393.51, H2O(g) −241.826 kJ/mol). Exhaust composition is methane
+burned in dry air to a specified wet O2 fraction. Air humidity is
+ignored.</li>
+<li><strong>D46 — Heat-source defaults are generic inputs</strong> (user
+choice), not vendor data: exhaust temperature, flow and O2 fraction;
+molten-salt cp 1500 J/(kg K); coolant cp 4180 J/(kg K). No GT/engine
+ratings are assumed. Checks that need a rating (Fig. 4’s 1.5×) are
+computed only when the user supplies one.</li>
+<li><strong>D47 — Wegstein backtracking.</strong> If an accelerated step
+lands where a unit can’t be evaluated (e.g. a temperature-spec exchanger
+asked to cool), the step is halved back toward the last pass output, up
+to 8 times. The coupled Fig. 1 needed this for badly perturbed
+guesses.</li>
+<li><strong>D48 — Fig. 4 default inputs:</strong>
+<ul>
+<li>HP turbine 426: inlet 900 °F, outlet 250 psia (inside Fig. 2’s
+100–400 psia range for the analogous turbine, col. 10 ll. 42-43).</li>
+<li>Duct burner 428: to 900 °F (patent 700–1100 °F, col. 18 ll.
+55-57).</li>
+<li>LP turbine 430: to 15.2 psia (“slightly above atmospheric”).</li>
+<li>GT exhaust: 20 kg/s at 1000 °F, 14 % O2.</li>
+<li>ORC split: 0.275 (patent 25–30 %).</li>
+<li>Optional expander 434: not modeled.</li>
+</ul></li>
+<li><strong>D49 — Fig. 4 ORC</strong> (user choice: methane, like Fig.
+3). Pump → recuperator → exhaust heater → turbine → recuperator →
+condenser 420 → accumulator. Its high pressure (1500 psia) is from Fig.
+3’s ORC range; its condensing pressure (530 psia) is Fig. 3’s stated ORC
+condensate state (D7). The ORC flow is the smaller of the exhaust-heater
+limit and the condenser-420 limit, both at ΔT_min. At defaults the
+condenser (the pass-2 air) limits it, which is reported as
+<code>extra.orc_condenser_limited</code>. The ORC design is redone for
+each P_int because P-2’s outlet depends on it.</li>
+<li><strong>D50 — Presets fix their tear sets</strong>
+(<code>Flowsheet.solve(tears=...)</code>) when a smaller automatic set
+would tear streams that are hard to guess. Fig. 4 tears the T-1 exhaust,
+the E-1 hot inlet and the two ORC-loop streams, whose guesses are exact
+from the ORC design.</li>
+</ul>
+<h2 id="phase-5b--fig-3-fig-5-2026-09-25">Phase 5b — Fig. 3, Fig. 5
+(2026-09-25)</h2>
+<ul>
+<li><strong>D51 — Engines are boundary streams</strong>, not modeled
+machines: exhaust (flow = air + fuel burned, from the engine’s air flow
+and exhaust O2), coolant loops (constant-cp liquid), and, for Fig. 3, an
+air sink at the engine’s intake P and aftercooler T. Engine power and
+efficiency effects are out of scope. Fig. 3 defaults sized so the heat
+balance closes:
+<ul>
+<li>8 kg/s engine air against 10 kg/s liquid air.</li>
+<li>P-2 1500 psia and T-2 inlet 900 °F, so T-2’s exhaust at 45 psia
+(≈182 °F) is warmer than the 120 °F air the engine needs. With 2000 psia
+and 800 °F it would be colder, and 310 couldn’t work.</li>
+<li>ORC-heater exhaust outlet 1100 °F (top of the patent range), leaving
+enough exhaust heat for 324.</li>
+<li>Exchanger 322 heats to within 20 °F of the HT coolant (col. 14 l. 66
+- col. 15 l. 1). 320 runs at max duty.</li>
+</ul></li>
+<li><strong>D52 — Shared ORC design</strong>
+(<code>cases/orc.py</code>), used by Figs. 3 and 4. The flow is the
+smaller of the exhaust limit (heater pinch, or a set exhaust outlet
+temperature) and the condenser limit. Fig. 3’s ORC includes warming
+exchanger 356 after its pump.</li>
+<li><strong>D53 — Fig. 5 specs and defaults:</strong>
+<ul>
+<li>518 heats pass 1 to T-1 520’s inlet; 536 heats pass 2 to T-2 538’s
+inlet.</li>
+<li>512 runs at max duty, capped at the T-1 target minus ΔT_min. Without
+the cap it overheats pass 1 whenever the exhaust is abundant, so 518
+would have to cool.</li>
+<li>530 heats pass 2 to the aftercooler T minus ΔT_min, so 532 can
+return the turbocharger air at the aftercooler temperature as the patent
+requires (col. 20 ll. 48-53).</li>
+<li>Recuperators 510/514/516/522 run at max duty.</li>
+<li>T-1 inlet 600 °F: below the patent’s 700–1100 °F, to stay inside
+methane’s validated range (D20).</li>
+<li>T-2 inlet 500 °F (“medium-temperature” exchanger 536).</li>
+<li>Duct burner 542 defaults to 1200 °F: without a burner the case is
+infeasible, and at 1100 °F exchanger 536 still crossed.</li>
+<li>Burner 540 and exchanger 534 are off by default. The patent says
+they depend on economics, and that 534 may add nothing without 540.</li>
+</ul></li>
+<li><strong>D54 — Temperature crosses fail the case.</strong> A
+converged flowsheet in which any exchanger with non-zero duty has a
+negative approach violates the second law. The result is status “failed”
+with the exchangers named, and streams and units are kept for diagnosis.
+Approaches below ΔT_min but still positive are warnings.</li>
+<li><strong>D55 — Exchangers and warming heaters never run
+backwards.</strong> Warming heaters (ambient) are heat-only.
+Temperature-spec exchangers whose inlet already meets the spec transfer
+nothing and warn. A zero-duty exchanger’s inlet difference isn’t treated
+as an approach. Before this, bad iterates could make a warming exchanger
+cool a stream, and a spec exchanger fail outright.</li>
+<li><strong>D56 — <code>make format</code> order.</strong>
+<code>ruff format</code> now runs before <code>ruff check --fix</code>.
+Previously a lint error stopped make before the formatter ran, so long
+lines needed manual wrapping.</li>
+</ul>
+<h2 id="phase-5c--fig-2-fig-4a-2026-09-25">Phase 5c — Fig. 2, Fig. 4A
+(2026-09-25)</h2>
+<ul>
+<li><strong>D57 — Fig. 2 defaults and structure:</strong>
+<ul>
+<li>T-1 inlet 500 °F (210 target). Expander 224: 1000 °F / 250 psia.
+Combustor 232: 2000 °F (patent 1600–2400 °F).</li>
+<li>Duct burner 238: 1300 °F. At 1200 °F exchanger 210 crossed.</li>
+<li>Expander 230 split 0 (optional in the patent). At 20 % the default
+burner is too cold, and the case fails with a clear heat-shortage
+message.</li>
+<li>The Rankine loop 250 uses the shared ORC design (with warming
+exchanger 258). Startup/fill valve 264 and mixer 260 are not
+modeled.</li>
+<li>Exchangers 210, 222 and 236 are heated by the cycle’s own combustion
+products, so they carry no heat-source category: fuel is counted once,
+at 232 and 238.</li>
+</ul></li>
+<li><strong>D58 — Fig. 4A.</strong> The patent’s 4A drops the external
+gas turbine 432, whose exhaust heats Fig. 4’s ORC, so the ORC and
+condenser 420 are omitted. Pass 2 goes P-2 → warming 422 → recuperator
+414. Combustor 428 to 2000 °F; duct burner 436 to 1100 °F; 410 (now an
+exhaust exchanger) runs at max duty down to the products’ water dew
+point.</li>
+<li><strong>D59 — Exhaust exchangers don’t condense.</strong> Max-duty
+exchangers can stop the hot side at its water dew point
+(<code>hot_above_dew_point</code>). Used for 410 in Figs. 4 and 4A. Fig.
+4 is unchanged; Fig. 4A’s exit sits at its 109 °F dew point instead of
+an unmodeled 80 °F.</li>
+<li><strong>D60 — Heat shortages are reported.</strong> A
+temperature-spec exchanger that would need more duty than its hot side
+can give (cooled to the cold inlet temperature) fails with the required
+and available MW, instead of a property-range error.</li>
+<li><strong>D61 — Preset registry</strong>
+(<code>jitmodel.cases.PRESETS</code>): name → inputs model and solver,
+for the studies and web layers.</li>
+</ul>
+<h2 id="phase-6--studies-2026-09-25">Phase 6 — studies (2026-09-25)</h2>
+<ul>
+<li><strong>D62 — Optimizer.</strong> SLSQP in variables scaled to [0,
+1], forward-difference gradients with a 1e-3 step (well above the ~1e-7
+solver noise; locates optima to a few 1e-4 of the box), maxiter 30.
+Starts are the box center plus a seeded Latin-hypercube sample in [0.1,
+0.9], run in parallel processes. The objective is scaled by its value at
+the start. A failed solve returns a penalty (+10 in scaled units, where
+feasible values are about −1), which pushes SLSQP back into the feasible
+region; tested against an evaluator that is infeasible past a
+boundary.</li>
+<li><strong>D63 — Sweeps</strong> run in a process pool (CoolProp state
+objects are not thread-safe) and return one row per point (inputs +
+scalar metrics). Failed points keep their row with status “failed” and
+None metrics, so gaps are visible. Tidy rows are plain records, not
+pandas (<a href="PLAN.html">PLAN.md</a> §2 reserves pandas for
+dispatch). Any float/int input of a preset can be swept or optimized,
+except <code>n_segments</code>.</li>
+<li><strong>D64 — Smoothness criterion</strong> for the Phase 6
+acceptance sweep: monotone, |Δ²y| &lt; 0.5 × the local |Δy| at every
+point, and one sign of curvature. A criterion against the global minimum
+slope wrongly flags ordinary concavity.</li>
+</ul>
+<h2 id="phase-7--dispatch-2026-09-25">Phase 7 — dispatch
+(2026-09-25)</h2>
+<ul>
+<li><strong>D65 — Dispatch model:</strong>
+<ul>
+<li><strong>Time steps:</strong> hourly. Discharge up to the solved
+cycle’s cryogen flow, capped by the send-out limit. Charging up to
+liquefaction power ÷ liquefaction energy per kg. Both are user inputs
+with no defaults, as the plan says.</li>
+<li><strong>Part rate:</strong> net power and fuel scale linearly with
+discharge flow. Real plants have part-load curves; this is an
+approximation.</li>
+<li><strong>LP:</strong> tank level as a variable with a sparse balance
+row per hour, and a final inventory ≥ the initial one so the LP can’t
+profit by draining the tank. Charging and discharging in the same hour
+is allowed; it pays only if the cycle’s output per kg exceeds the
+liquefaction energy (possible with fuel or waste heat).</li>
+<li><strong>Revenue</strong> is electricity only. For LNG the stored gas
+has its own commodity value that isn’t counted, which understates LNG
+cases whose purpose is combined gas and power storage.</li>
+<li><strong>Energy ratio</strong> is liquefaction energy ÷ energy
+produced, as the patent defines it (col. 19 ll. 6-8).</li>
+</ul></li>
+<li><strong>D66 — Worker processes use a forkserver.</strong> Forking a
+multi-threaded process (numpy, HiGHS, and later the web server) can
+deadlock the children; Python 3.13 warns about it.</li>
+<li><strong>D67 — Money units:</strong> prices in $/MWh; fuel price in
+<span
+class="math inline">/<em>G</em><em>J</em><em>L</em><em>H</em><em>V</em><em>i</em><em>n</em><em>t</em><em>e</em><em>r</em><em>n</em><em>a</em><em>l</em><em>l</em><em>y</em>(</span>/MMBtu
+at the UI boundary through <code>units.py</code>, 1 MMBtu =
+1.05505585262 GJ). Heat rate is J/J internally, Btu/kWh for
+display.</li>
+<li><strong>D68 — Test price data is synthetic</strong>
+(<code>tests/fixtures/prices_synthetic_8760.csv</code>, fixed seed:
+seasonal curve, evening peak, noise, rare spikes). It is labeled as such
+in its header and is never presented as market data. The price CSV
+loader accepts a column named “price” (any case) or the last numeric
+column, and skips ‘#’ comment lines.</li>
+</ul>
+<h2 id="phase-8--web-routes-jobs-json-2026-09-25">Phase 8 — web routes,
+jobs, JSON (2026-09-25)</h2>
+<ul>
+<li><strong>D69 — Display units.</strong> <code>units.QUANTITIES</code>
+is the single table of display units.
+<ul>
+<li>US customary is the default, since the patent works in psia and °F:
+psia, °F, lb/h, Btu/lb, $/MMBtu, Btu/kWh.</li>
+<li>SI uses kPa, °C, K for temperature differences, kg/s, kJ/kg, $/GJ
+and kJ/kWh.</li>
+<li>MW, kWh/t, $/MWh and t are shared.</li>
+<li>Every numeric input of every preset maps to a quantity kind by
+explicit override or name pattern, and a test fails if any input has
+none.</li>
+<li>The choice is set by <code>?units=</code> and remembered in a
+cookie.</li>
+</ul></li>
+<li><strong>D70 — Form values</strong> show 6 significant digits
+(10342.1 kPa, not 10342.13594), and each field carries a hidden “exact”
+copy (<code>exact.&lt;name&gt;</code> = shown text | SI value). A field
+submitted unchanged uses the exact SI value, so defaults round-trip
+bit-for-bit in either unit system; an edited field uses what was typed.
+Blank optional fields become None; blank required fields take the model
+default. (Phase 9 change: Phase 8 showed 10 digits.)</li>
+<li><strong>D71 — Jobs.</strong> Every solve, sweep, optimization and
+dispatch is a job:
+<ul>
+<li>Orchestration runs in a small thread pool.</li>
+<li>Preset solves run in one shared forkserver process pool (D66).</li>
+<li>Sweeps and optimizations start their own pools.</li>
+<li>Results are saved atomically as
+<code>var/results/&lt;id&gt;.json</code> (git-ignored), so they survive
+dev-server reloads.</li>
+<li>Running and failed jobs live only in memory; a reload forgets
+running jobs, never finished ones.</li>
+<li>“Solving…” pages refresh themselves
+(<code>&lt;meta refresh&gt;</code>) for the no-JS path.</li>
+</ul></li>
+<li><strong>D72 — <code>/api/intermediate</code></strong> runs only the
+E-1 solve (~0.5 s) for live slider feedback. Cases whose T-1 inlet comes
+from a recuperator use T_warm + 150 K there, which is fine because P_int
+doesn’t depend on T-1 inlet temperature (D32). The full solve (Solve
+cycle) uses the real flowsheet.</li>
+<li><strong>D73 — Exports.</strong> JSON is the stored document (inputs
++ result, SI). CSV is a table in the current display units with units in
+the headers: streams for a solve, rows for a sweep, starts for an
+optimization, the hourly schedule for a dispatch.</li>
+<li><strong>D74 — Result schema.</strong>
+<code>CycleResult.hx_profiles</code> now carries the T–Q profile of
+every two-stream exchanger that transfers heat (for the Phase 9
+heat-exchanger view), not just E-1’s.</li>
+</ul>
+<h2 id="phase-9--ui-2026-09-25">Phase 9 — UI (2026-09-25)</h2>
+<ul>
+<li><strong>D75 — Vendored browser assets</strong> (committed; nothing
+is loaded from a CDN at runtime). Each was verified against two
+independent official sources before it was committed:
+<ul>
+<li><strong>Plotly.js 4.1.1, cartesian partial bundle</strong> (scatter,
+lines, heatmaps; MIT):
+<code>jitmodel/web/static/vendor/plotly-cartesian-4.1.1.min.js</code>,
+SHA-256
+<code>79542150855a52c567260e3137095dbe2b744e6d702a5cabe67da246942fba7a</code>.
+Byte-identical from <a
+href="https://raw.githubusercontent.com/plotly/plotly.js/v4.1.1/dist/plotly-cartesian.min.js">https://raw.githubusercontent.com/plotly/plotly.js/v4.1.1/dist/plotly-cartesian.min.js</a>
+and <a
+href="https://cdn.plot.ly/plotly-cartesian-4.1.1.min.js">https://cdn.plot.ly/plotly-cartesian-4.1.1.min.js</a>.
+The full bundle isn’t needed (1.5 MB instead of ~4.6 MB).</li>
+<li><strong>IBM Plex Sans 1.1.0</strong> (Regular, SemiBold woff2; OFL
+1.1) from <a
+href="https://github.com/IBM/plex/releases/download/%40ibm/plex-sans%401.1.0/ibm-plex-sans.zip">https://github.com/IBM/plex/releases/download/%40ibm/plex-sans%401.1.0/ibm-plex-sans.zip</a>
+(zip SHA-256
+<code>fb365d910566e6d199cc2c15579a7dd9a267128e18431a394ed81f1970c69200</code>).
+The release asset has no published digest, so the two fonts were checked
+byte-identical against <code>@ibm/plex-sans@1.1.0</code> from the npm
+registry, whose sha512 integrity was verified. Regular
+<code>ba711a3085ff9f27440b6b9c4550cfc47c97bf36591d5da958b975bb3add8c1a</code>,
+SemiBold
+<code>f78048030eab62e860efa39a0df79e2e5581bf122eb95b9bc42c0b8a4988d205</code>.</li>
+<li><strong>IBM Plex Mono 2.5.0</strong> (Regular woff2; OFL 1.1) from
+<a
+href="https://github.com/IBM/plex/releases/download/%40ibm/plex-mono%402.5.0/ibm-plex-mono.zip">https://github.com/IBM/plex/releases/download/%40ibm/plex-mono%402.5.0/ibm-plex-mono.zip</a>,
+matching IBM’s published digest
+<code>sha256:6d23f01257663d8cc49a0d64c22ced630b79e0e2a0ac08a0da86e9a38bbc481c</code>.
+Regular
+<code>ba204497f16b6d334cee9d1e963a831b73e3a56e1d6300a8489d18df7214b350</code>.</li>
+<li>The OFL license text is in
+<code>static/fonts/LICENSE-IBM-Plex.txt</code>; it is identical for both
+families.</li>
+</ul></li>
+<li><strong>D76 — Flowsheet diagram</strong>
+(<code>web/diagram.py</code>): inline SVG built from each preset’s
+actual flowsheet graph (a fast structure-only build, no solve), so the
+picture always matches what is solved.
+<ul>
+<li><strong>Layout:</strong> fixed lanes per preset: heat sources on
+top, pass 1, pass 2 (E-1 spans both), loops at the bottom. Spacers can
+place a source above the exchanger it feeds. Unlisted (optional) units
+get their own row.</li>
+<li><strong>Streams:</strong> orthogonal polylines colored cryogenic
+(&lt; 250 K) / warm / hot (&gt; 450 K); grey until solved.</li>
+<li><strong>Units</strong> are links (<code>?unit=ID</code>), so
+inspecting works without JavaScript. The script only skips the page
+load.</li>
+<li><strong>Size:</strong> the diagram scales to fit down to 70 % of
+natural size, then scrolls, with a hint.</li>
+<li><strong>Limitation:</strong> automatic routing can cross lines over
+boxes in the densest presets (Figs. 2 and 4).</li>
+</ul></li>
+<li><strong>D77 — Charts</strong> get data already in display units from
+the server (JSON in
+<code>&lt;script type="application/json"&gt;</code>), so JavaScript
+never converts units (rule 4). Without JavaScript, charts fall back to
+tables in <code>&lt;noscript&gt;</code>.
+<ul>
+<li>The live E-1 preview is labeled “Preview” to distinguish it from a
+solved result.</li>
+<li>The dispatch typical day shades each hour by its net direction: most
+hours see both charging and discharging on average, so shading both
+would be unreadable.</li>
+</ul></li>
+<li><strong>D78 — End-to-end test</strong>
+(<code>tests/e2e/test_smoke.py</code>, <code>make e2e</code>): a live
+server on a free port with real background jobs, driven through the
+system Chromium by the Python Playwright package;
+<code>playwright install</code> is never run. It fails on any browser
+console error.</li>
+</ul>
+<h2 id="phase-10--polish-2026-09-25">Phase 10 — polish (2026-09-25)</h2>
+<ul>
+<li><p><strong>D79 — Case files.</strong> “Save case” downloads
+<code>{"format": "jitmodel-case", "version": 1, "preset", "inputs"}</code>,
+with the inputs validated and in SI (exact values, D70). “Load a saved
+case” accepts that format or a solve result’s JSON export, re-validates
+it against the preset’s inputs model, and fills the form. It doesn’t
+solve until asked.</p></li>
+<li><p><strong>D80 — Validation summary is generated.</strong>
+<code>make validation</code>
+(<code>jitmodel/studies/validation.py</code>) solves every preset at its
+defaults and rewrites the marked block at the top of <a
+href="VALIDATION.html"><code>docs/VALIDATION.md</code></a>: P_int
+against each figure’s own patent value (Fig. 2 against its “about 460
+psia”), re-condensed temperature, net power, baseline, gain, energy
+balance, and pass/fail for the three §5 criteria. The per-phase sections
+below it are the history.</p></li>
+<li><p><strong>D81 — PDF report skipped</strong> at the user’s request
+(it would have needed a new dependency). CSV and JSON exports
+remain.</p></li>
+<li><p><strong>D82 — Instructions tab</strong> (user request,
+2026-09-25). This is the first tab: the cycle, the benefits the patent
+claims (quoted with column and line), the six cases, a quick start,
+every tab including the optimizer, conventions and limits. It embeds the
+live Fig. 1 diagram (units link to the Flowsheet tab), and its
+temperatures follow the unit toggle. Timing claims in it are measured
+values, not estimates. Writing it exposed poor labels, now fixed. The
+dispatch form showed internal descriptions (“Kg of cryogen”, “W electric
+at full charge rate”, and two identical “Threshold rule: $/mwh” fields).
+The sweep and optimizer pickers and result pages showed raw names
+(<code>T_hp_in</code>). All now use readable labels
+(<code>forms.label_of</code>).</p></li>
+<li><p><strong>D83 — Consistent unit tags</strong> (user request,
+2026-09-25). The earlier tags mixed PLAN.md’s generic list with ad-hoc
+names, and the letters were inconsistent: Fig. 1’s “H-1” was a
+two-stream exhaust exchanger while “E-2” was an ambient heater. Tags now
+use one letter per equipment type: P pump, T turbine, E two-stream
+exchanger, H single-stream heater, B burner/combustor, V accumulator, TK
+tank, S splitter, M mixer. They are numbered in patent-numeral order
+within each figure, with every optional unit included so a tag never
+depends on options. Units the patent doesn’t show (the Fig. 4 ORC) come
+last. Stream ids (built from numerals) are unchanged, E-1 is E-1
+everywhere, and older entries in this file keep the old tags.
+Renames:</p>
+<ul>
+<li>Fig. 1: E-2→H-1, SP-1→S-1, H-1a→E-2, MX-1→M-1, H-1→E-4, E-4→E-5,
+E-5→H-2.</li>
+<li>Fig. 2: E-2→H-1, H-1→E-2, E-5→E-4, H-2→E-5, SP-1→S-1, CB-1→B-1,
+H-3→E-6, DB-1→B-2, E-6→H-2.</li>
+<li>Fig. 3: E-2→H-1, E-3→E-2, E-5→E-3, H-3→E-4, H-4→E-5, H-1→E-6,
+SP-1→S-1, DB-1→B-1, E-6→H-2, H-2→E-8.</li>
+<li>Fig. 4: E-2→H-1, E-3→E-2, E-4→E-3, E-5→E-4, E-6→H-2, H-1→E-5,
+DB-1→B-1, E-7→E-6, H-2→E-7, SP-1→S-1.</li>
+<li>Fig. 4A: E-2→H-1, H-1→E-2, E-4→E-3, E-6→H-2, H-2→E-4, CB-1→B-1,
+DB-1→B-2.</li>
+<li>Fig. 5: E-2→H-1, E-3→E-2, H-1→E-3, H-2→E-6, E-6→E-7, E-7→H-2,
+H-3→E-8, H-4→E-9, H-5→E-10, H-6→E-11, DB-1→B-1, DB-2→B-2. The diagram
+shows the type word, a small icon and a hover tooltip, and no longer
+draws the ideal-gas switch (SW-1, bookkeeping rather than equipment):
+the stream runs straight from turbine to burner. SW-1 stays in the
+result tables. Results saved before this change keep their old ids.</li>
+</ul></li>
+<li><p><strong>D84 — Cloud Run: one instance, one process</strong> (user
+request, 2026-09-25).</p>
+<ul>
+<li>The container runs gunicorn (<code>[deploy]</code> extra, vetted on
+PyPI) with one worker process and 8 threads, because running jobs and
+their status live in that process’s memory. Cloud Run is limited to
+max-instances 1 for the same reason: a second instance wouldn’t see the
+first one’s jobs or results.</li>
+<li>CPU stays allocated between requests
+(<code>--no-cpu-throttling</code>), so sweeps and optimizations keep
+running after the request that started them returns.</li>
+<li>With min-instances 0 the service scales to zero when idle. Saved
+results (<code>var/results</code>, held in memory on Cloud Run) are then
+lost; exports and Save case keep them.</li>
+<li><code>JITMODEL_WORKERS</code> sets the solver process-pool size,
+because a container can report the host’s CPU count rather than its own
+limit.</li>
+<li>Runtime packages are pinned in <code>requirements-deploy.txt</code>,
+generated from the dev <code>.venv</code>.</li>
+<li>gunicorn 26’s control socket is disabled; otherwise it writes to
+<code>~/.gunicorn</code>.</li>
+</ul></li>
+</ul>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <p>Copyright 2026 Just In Time Energy Company.</p>
+  </div>
+</footer>
+</body>
+</html>

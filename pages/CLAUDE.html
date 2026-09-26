@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAUDE.md · jitmodel</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="../index.html" title="jitmodel — how it was built"><img class="logo" src="../assets/jit-logo.png" alt="Just In-Time Energy Company"></a>
+    <nav aria-label="Documents">
+      <a href="../index.html">Home</a>
+      <a href="transcript.html">Transcript</a>
+      <a href="README.html">README</a>
+      <a href="PLAN.html">Plan</a>
+      <a href="DECISIONS.html">Decisions</a>
+      <a href="VALIDATION.html">Validation</a>
+      <a href="CLAUDE.html">CLAUDE.md</a>
+    </nav>
+  </div>
+</header>
+<div class="doc-layout">
+<main class="doc">
+<p class="source-note">Rendered from <code>CLAUDE.md</code> in the jitmodel repository, as of September 26, 2026 (commit 43f6277).</p>
+<h1 id="jitmodel">jitmodel</h1>
+<p>Model and web app for the re-condensing cryogenic power cycle of US
+11,598,261 (Just In Time Energy). The full plan is in <a
+href="PLAN.html"><code>PLAN.md</code></a>. The patent is <a
+href="https://patents.google.com/patent/US11598261"><code>docs/US11598261.pdf</code></a>.
+Decisions are logged in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a> and validation
+results in <a href="VALIDATION.html"><code>docs/VALIDATION.md</code></a>
+(including how to read the dispatch comparison). The Cloud Run
+deployment is documented in <code>docs/DEPLOY.md</code>.</p>
+<h2 id="working-rules">Working rules</h2>
+<ol type="1">
+<li><strong>Work one phase at a time, in order.</strong> Don’t start a
+phase until the previous phase’s acceptance checks pass.</li>
+<li><strong>Run the tests after every meaningful change</strong>
+(<code>make test</code>, which runs <code>.venv/bin/pytest</code>).
+Commit at the end of each phase with a message like
+<code>phase 3: discretized HX + pinch solver</code>.</li>
+<li><strong>Never invent performance numbers.</strong> Anything not
+computed by the solver or taken from the patent shows <code>—</code> in
+the UI. Test fixtures may use patent values only, each with a comment
+citing the figure or column.</li>
+<li><strong>Units:</strong> use SI internally (Pa, K, J/kg, kg/s, W).
+Convert to US customary (psia, °F, Btu/lb, lb/h, MW)
+<strong>only</strong> at the UI boundary, through one
+<code>jitmodel/units.py</code> module. Include a UI toggle for SI vs. US
+customary.</li>
+<li><strong>Dependencies:</strong> use only those listed in <a
+href="PLAN.html">PLAN.md</a> §2. Ask before adding anything else.</li>
+<li>Record non-obvious modeling choices in <a
+href="DECISIONS.html"><code>docs/DECISIONS.md</code></a>, one short
+entry per decision.</li>
+<li><strong>Nothing outside the repo.</strong> Never run installer
+scripts, <code>sudo</code>, global <code>pip</code>/<code>npm</code>
+installs, or anything that edits files outside this directory (shell
+profiles, <code>~/.local</code>, <code>~/.config</code>). If a system
+package is needed, ask the user to <code>apt install</code> it.</li>
+<li><strong>Vet every Python package before downloading it</strong>
+(typosquatting). Before adding or installing any package, including a
+new transitive dependency, check its PyPI page
+(<code>https://pypi.org/pypi/&lt;name&gt;/json</code>):
+<ul>
+<li>the exact spelling of the name,</li>
+<li>that its source repo belongs to the expected project or
+organization,</li>
+<li>its first-release date and release history,</li>
+<li>which package requires it (<code>pip show &lt;name&gt;</code>,
+Required-by). Report the findings to the user. Never
+<code>pip install jitmodel</code> by name: it’s this local package,
+installed only with <code>pip install -e .</code>.</li>
+</ul></li>
+</ol>
+<h2 id="stack-see-planmd-2">Stack (see <a href="PLAN.html">PLAN.md</a>
+§2)</h2>
+<ul>
+<li>Python 3.13 (Debian) in <code>.venv</code>
+(<code>make setup</code>). Flask + Jinja + plain HTML/CSS + small
+vanilla JS modules. No Node/npm, bundler or client-side framework.</li>
+<li>Charts: Plotly.js, vendored in
+<code>jitmodel/web/static/vendor/</code>. No CDN at runtime.</li>
+</ul>
+<h2 id="commands">Commands</h2>
+<ul>
+<li><code>make setup</code>: create <code>.venv</code>, install
+<code>.[dev]</code>, enable <code>.githooks</code></li>
+<li><code>make dev</code>: dev server at <a
+href="http://0.0.0.0:5001">http://0.0.0.0:5001</a> (dev only, no
+auth)</li>
+<li><code>make test</code>: pytest (excludes
+<code>tests/e2e</code>)</li>
+<li><code>make e2e</code>: Playwright smoke test against
+<code>/usr/bin/chromium</code></li>
+<li><code>make lint</code>: ruff check, ruff format –check, mypy –strict
+on <code>jitmodel/core</code></li>
+<li><code>make validation</code>: re-solve every preset and regenerate
+the summary in <a
+href="VALIDATION.html"><code>docs/VALIDATION.md</code></a></li>
+</ul>
+</main>
+</div>
+<footer class="site-footer">
+  <div class="inner">
+    <p>Copyright 2026 Just In Time Energy Company.</p>
+  </div>
+</footer>
+</body>
+</html>

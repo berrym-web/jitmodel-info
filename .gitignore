@@ -1,0 +1,5 @@
+# The unedited transcript export; the site publishes the edited pages/transcript.html instead.
+b4deebe4-192d-4e89-b7b8-2b1dd3d824c8.html
+# Local build tooling. It contains the personal details it redacts, so it is not published.
+build.sh
+build/

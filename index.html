@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jitmodel · How it was built</title>
+<meta name="description" content="How jitmodel, a model and web app for the re-condensing cryogenic power cycle of US Patent 11,598,261, was planned and built with Claude.">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo-link" href="index.html"><img class="logo" src="assets/jit-logo.png" alt="Just In-Time Energy Company"></a>
+    <nav aria-label="Documents">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="pages/transcript.html">Transcript</a>
+      <a href="pages/README.html">README</a>
+      <a href="pages/PLAN.html">Plan</a>
+      <a href="pages/DECISIONS.html">Decisions</a>
+      <a href="pages/VALIDATION.html">Validation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="home">
+  <section class="hero">
+    <p class="eyebrow">How it was built</p>
+    <h1>jitmodel: a cryogenic power cycle model, built with Claude</h1>
+    <p class="lede">
+      jitmodel is a model and web app for the <strong>re-condensing cryogenic power cycle</strong> of
+      <a href="https://patents.google.com/patent/US11598261">US Patent 11,598,261</a> (Just In-Time Energy).
+      LNG or liquid air is pumped to supercritical pressure, heated and expanded, then re-condensed against the
+      incoming pumped liquid in a shared heat exchanger, re-pumped, re-heated and expanded a second time.
+    </p>
+    <p>
+      It solves the design point of all six patent figures, compares each against a single-expansion baseline, runs
+      parameter sweeps and optimization, and estimates hourly dispatch economics. It was planned and built with
+      Claude. This page links to those conversations and to the project's documents.
+    </p>
+    <a class="button" href="pages/transcript.html">Read the Claude Code transcript</a>
+    <ul class="stats">
+      <li><strong>27</strong> commits</li>
+      <li><strong>~6,500</strong> lines of Python</li>
+      <li><strong>~160</strong> tests</li>
+      <li><strong>84</strong> logged design decisions</li>
+    </ul>
+  </section>
+
+  <h2 class="section-title">The three stages</h2>
+
+  <ol class="steps">
+    <li>
+      <h3>Planning in Claude on the web</h3>
+      <p>
+        A conversation on claude.ai covered the patent, the physics and what the app should do. It produced the
+        implementation plan, including the target values from the patent and the order in which to build things.
+      </p>
+      <p>
+        <a href="https://claude.ai/share/9a79c223-1ec9-4d40-99e1-bee77c60ce63">Read the planning conversation</a>
+        · <a href="pages/PLAN.html">PLAN.md</a>
+        <span class="meta">(as later revised in the Claude Code session, mainly to switch to a simpler Flask architecture)</span>
+      </p>
+    </li>
+    <li>
+      <h3>Building with Claude Code</h3>
+      <p>
+        A single Claude Code (CLI) session, run in a development environment inside a Debian Linux Docker container,
+        built the app from the plan in eleven phases, from the fluid property calculations up to the web interface.
+        The phases took a little over two hours (01:27 to 03:45 UTC on September 25, 2026). Results were checked
+        against the patent, and modeling decisions were recorded in DECISIONS.md.
+      </p>
+      <p>
+        <a href="pages/transcript.html">Read the Claude Code transcript</a>
+        <span class="meta">(edited: the prompts and Claude's replies, without tool calls or output)</span>
+      </p>
+    </li>
+    <li>
+      <h3>Improvements and deployment</h3>
+      <p>
+        In the same session, the web interface was improved (an instructions tab, clearer labels and error
+        messages), and the app was deployed to Google Cloud Run, with Claude giving step-by-step instructions for
+        Google Cloud. At the end, Claude explained how the cycle works and updated the documentation so that a
+        future session can continue the work.
+      </p>
+      <p><a href="pages/transcript.html#deploying-to-google-cloud-run">Deployment part of the transcript</a></p>
+    </li>
+  </ol>
+
+  <h2 class="section-title">Project documents</h2>
+  <p class="section-intro">Markdown files from the jitmodel repository, converted to web pages.</p>
+
+  <div class="cards">
+    <a class="card" href="pages/README.html">
+      <span class="name">README.md</span>
+      <p>What the app does, how to set it up and run it, and how the code is organized.</p>
+    </a>
+    <a class="card" href="pages/PLAN.html">
+      <span class="name">PLAN.md</span>
+      <p>The implementation plan: what to build, the values to check against the patent, and the build phases.</p>
+    </a>
+    <a class="card" href="pages/DECISIONS.html">
+      <span class="name">docs/DECISIONS.md</span>
+      <p>84 short entries explaining modeling and project decisions, with references to the patent.</p>
+    </a>
+    <a class="card" href="pages/VALIDATION.html">
+      <span class="name">docs/VALIDATION.md</span>
+      <p>Model results for each patent figure, compared with the values in the patent.</p>
+    </a>
+    <a class="card" href="pages/CLAUDE.html">
+      <span class="name">CLAUDE.md</span>
+      <p>Instructions that Claude Code reads when it works in the repository.</p>
+    </a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <p>
+      <strong>Freedom to operate.</strong> jitmodel models a patented process (US 11,598,261). Commercial use of the
+      process, or of results from this model, may require a license from the patent holder and legal review.
+    </p>
+    <p>Copyright 2026 Just In Time Energy Company.</p>
+  </div>
+</footer>
+</body>
+</html>
