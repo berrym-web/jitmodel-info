@@ -78,7 +78,7 @@ id="toc-phase-10--polish-2026-09-25">Phase 10 — polish
 </ul>
 </nav>
 <main class="doc">
-<p class="source-note">Rendered from <code>docs/DECISIONS.md</code> in the jitmodel repository, as of September 26, 2026 (commit 43f6277).</p>
+<p class="source-note">Rendered from <code>docs/DECISIONS.md</code> in the jitmodel repository, as of September 28, 2026 (commit 094842d).</p>
 <h1 id="decisions">Decisions</h1>
 <p>One short entry per non-obvious modeling or project decision. Patent
 citations are by reference numeral / figure until column-line citations
@@ -741,6 +741,208 @@ generated from the dev <code>.venv</code>.</li>
 <li>gunicorn 26’s control socket is disabled; otherwise it writes to
 <code>~/.gunicorn</code>.</li>
 </ul></li>
+<li><p><strong>D85 — Diagram lines never run behind boxes</strong>
+(inventor’s review, 2026-09-26: “a mixer that doesn’t mix and a splitter
+that doesn’t split”).</p>
+<ul>
+<li>The model was right: in Fig. 1, S-1 (110) splits the flow 50/50 to
+E-2 and E-3 and M-1 (116) rejoins them. The drawing hid it: E-2 and E-3
+sat side by side, so the S-1 → E-3 and E-2 → M-1 lines ran straight
+behind the other exchanger, and the flow looked like a single series
+line. Every figure had lines hidden this way.</li>
+<li>Fig. 1 now draws E-2 above E-3, both between S-1 and M-1.</li>
+<li>Any line whose direct route would pass behind a box now detours
+through the free gaps between rows and columns.</li>
+<li>Lines that share a side of a box get their own connection points. On
+the left or right, the line that continues straight along the row keeps
+the middle and the others sit above or below it, toward their other end;
+on the top or bottom they spread sideways. Before this, every line met a
+box at the middle of its side, so unrelated streams looked joined (in
+Fig. 1, the T-1 exhaust and the pass-2 methane both entered E-5 at one
+point).</li>
+<li>Arrowheads are half their former size (7 px), so junctions and
+corners stay visible.</li>
+<li>Tests check every figure, including Fig. 5’s optional units: no line
+runs behind a box, and no two lines meet a box at the same point.</li>
+</ul></li>
+<li><p><strong>D86 — Results panel lists every turbine and pump</strong>
+(inventor’s review, 2026-09-26: “it doesn’t look like the model is
+adding up all the turbine outputs”). The panel showed only T-1 and T-2,
+so in Figs. 2, 3, 4 and 4A (three to five turbines, including the ORC or
+Rankine turbine) the listed rows didn’t add up to the net power. The
+model’s totals were right. The panel now shows net power, a turbines
+total with each turbine below it, and a pumps total with each pump below
+it. Turbine rows are electric output (shaft power × generator efficiency
+0.97); pump rows are electricity used (motor efficiency 1.0 by default,
+D26). A test checks that the rows add up for every figure.</p></li>
+<li><p><strong>D87 — Turbine inlet temperatures</strong> (inventor’s
+question, 2026-09-28: “How did Claude pick the turbine inlet
+temperatures?”). Each turbine inlet is either an <strong>input</strong>
+(a default chosen in this project, editable under All inputs) or
+<strong>calculated</strong> by the solver from other inputs. The patent
+states few inlet temperatures directly; its ranges are cited where they
+informed a choice. Values are at default inputs.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Figure</th>
+<th>Turbine</th>
+<th>Inlet</th>
+<th>Set by</th>
+<th>Source or reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>T-1 (120)</td>
+<td>600 °F, 1500 psia</td>
+<td>Input</td>
+<td>Chosen; inside methane’s validated range (≤ 625 K ≈ 665 °F, D20). GT
+exhaust range 400–2000 °F (col. 7 ll. 38-40). D36.</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>T-2 (130)</td>
+<td>221 °F, 2000 psia</td>
+<td>Calculated</td>
+<td>Pass 2 is heated only by T-1 exhaust (recuperator 122).</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>T-1 (212)</td>
+<td>500 °F, 1500 psia</td>
+<td>Input</td>
+<td>Chosen (target for exchanger 210). No patent value. D57.</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Expander 224</td>
+<td>1000 °F, 2000 psia</td>
+<td>Input</td>
+<td>Chosen. No patent value. D57.</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>Combustion turbine 234</td>
+<td>2000 °F, 250 psia</td>
+<td>Input (combustor 232)</td>
+<td>Patent 1600–2400 °F (col. 10 ll. 55-57). D57.</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Rankine turbine 262</td>
+<td>600 °F, 1500 psia</td>
+<td>Input</td>
+<td>Chosen; methane working fluid kept inside its validated range
+(D20).</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>T-1 (312)</td>
+<td>119 °F, 1500 psia</td>
+<td>Calculated</td>
+<td>Recuperator 310 only.</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>T-2 (326)</td>
+<td>900 °F, 1500 psia</td>
+<td>Input</td>
+<td>Chosen so T-2’s exhaust stays warmer than the engine’s 120 °F intake
+air (D51).</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>T-3 (330)</td>
+<td>182 °F, 45 psia</td>
+<td>Calculated</td>
+<td>Split of T-2’s exhaust.</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>ORC turbine 362</td>
+<td>600 °F, 1500 psia</td>
+<td>Input</td>
+<td>Chosen; methane ORC inside its validated range (D20).</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>T-1 (412)</td>
+<td>262 °F, 1500 psia</td>
+<td>Calculated</td>
+<td>Recuperator 410 only.</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>HP turbine 426</td>
+<td>900 °F, 2000 psia</td>
+<td>Input</td>
+<td>Chosen; within the 700–1100 °F the patent gives for comparable
+reheats (burner 428, col. 18 ll. 55-57; Fig. 5, col. 21 ll. 4-5).
+D48.</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>LP turbine 430</td>
+<td>900 °F, 250 psia</td>
+<td>Input (duct burner 428)</td>
+<td>Patent 700–1100 °F (col. 18 ll. 55-57). D48.</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>ORC turbine</td>
+<td>600 °F, 1500 psia</td>
+<td>Input</td>
+<td>Chosen; methane ORC inside its validated range (D20). D49.</td>
+</tr>
+<tr class="odd">
+<td>4A</td>
+<td>T-1 (412)</td>
+<td>268 °F, 1500 psia</td>
+<td>Calculated</td>
+<td>Exchanger 410 takes all the heat left in the exhaust after 424, down
+to its water dew point (D58, D59).</td>
+</tr>
+<tr class="even">
+<td>4A</td>
+<td>HP turbine 426</td>
+<td>900 °F, 2000 psia</td>
+<td>Input</td>
+<td>As Fig. 4. Heated by 424, so duct burner 436 (1100 °F, top of the
+patent’s 700–1100 °F) must be hotter.</td>
+</tr>
+<tr class="odd">
+<td>4A</td>
+<td>Gas-turbine expander 430</td>
+<td>2000 °F, 250 psia</td>
+<td>Input (combustor 428)</td>
+<td>The patent gives no 4A temperatures (col. 19 l. 36 – col. 20 l. 34);
+Fig. 2’s combustor range 1600–2400 °F was borrowed. D58.</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>T-1 (520)</td>
+<td>600 °F, 1500 psia</td>
+<td>Input</td>
+<td>Below the patent’s “typically between 700° F. and 1100° F.” (col. 21
+ll. 4-5), to stay inside methane’s validated range (D20). D53.</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>T-2 (538)</td>
+<td>500 °F, 2000 psia</td>
+<td>Input</td>
+<td>Chosen (“medium-temperature” exchanger 536). D53.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>None of the chosen values is optimized: hotter inlets give more power
+(the Phase 6 optimizer pushed Fig. 4’s HP inlet to its 980 °F upper
+bound), and the practical ceiling is turbine materials and cost, which
+the model doesn’t know.</p></li>
 </ul>
 </main>
 </div>
