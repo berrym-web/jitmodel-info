@@ -78,7 +78,7 @@ id="toc-phase-10--polish-2026-09-25">Phase 10 — polish
 </ul>
 </nav>
 <main class="doc">
-<p class="source-note">Rendered from <code>docs/DECISIONS.md</code> in the jitmodel repository, as of September 28, 2026 (commit 094842d).</p>
+<p class="source-note">Rendered from <code>docs/DECISIONS.md</code> in the jitmodel repository, as of September 29, 2026 (commit 426d37e).</p>
 <h1 id="decisions">Decisions</h1>
 <p>One short entry per non-obvious modeling or project decision. Patent
 citations are by reference numeral / figure until column-line citations
@@ -211,6 +211,101 @@ never <code>~/.CoolProp</code>.</li>
 <code>state_ph</code> calls, no cache, aarch64 container): Methane 0.39
 s, Air 0.31 s (target &lt; 1 s). A 20k-point random round-trip stress
 test per fluid: 0 failures, worst relative T error 9.3e-10.</li>
+<li><strong>D88 — CoolProp vs. REFPROP</strong> (added 2026-09-29; the
+inventor’s own models use REFPROP in TK Solver).
+<ul>
+<li><strong>Pure fluids: equivalent.</strong> Both implement the same
+reference equations: methane, Setzmann &amp; Wagner (1991); air, the
+pseudo-pure model of Lemmon et al. (2000) (REFPROP’s
+<code>air.ppf</code>). For the model as built (pure methane, pseudo-pure
+air), results should agree closely; a spot check of a few cycle states
+in REFPROP would confirm it.</li>
+<li><strong>Mixtures: REFPROP is stronger.</strong> Real LNG (methane
+with ethane, propane, nitrogen) and air as a true N2/O2/Ar mixture
+condense over a temperature range, which matters at E-1’s pinch.
+REFPROP’s mixture model (GERG-2008 for natural gas) and flash routines
+are the industry standard.</li>
+<li><strong>CoolProp 8.0.0 mixture test</strong> (HEOS,
+methane/ethane/propane, 96–100 % methane, at this cycle’s states):
+<ul>
+<li>Bubble and dew points are sensible where they converge. For 96/3/1
+mol % at 523 psia, dew −90.8 °F and bubble −126.3 °F: a 35 °F condensing
+range, against none for pure methane.</li>
+<li>With automatic phase detection, P,T calls at 1500 psia and −250 °F
+returned absurd enthalpies (about −820,000 kJ/kg) <strong>without
+raising an error</strong>. Imposing the phase gives smooth, sensible
+values.</li>
+<li>P,h flashes (used throughout the discretized exchangers) failed at
+40 of 41 supercritical points for mixtures containing ethane. A
+root-find on T with the phase imposed works instead.</li>
+<li>Two-phase: the saturation calculation failed outright for 98/1.5/0.5
+at 523 psia, and P,h inside the two-phase region failed at 4–13 of 19
+points depending on composition.</li>
+<li>So variable LNG composition in CoolProp is possible but needs our
+own two-phase flash (for example Rachford–Rice on CoolProp’s fugacity
+coefficients) and careful validation, especially near the mixture’s
+critical region. REFPROP would handle it directly.</li>
+</ul></li>
+<li><strong>REFPROP licensing (NIST SRD 23, checked 2026-09-29; not
+legal advice):</strong>
+<ul>
+<li><p>Single-user license: “can be installed on all machines that you
+use (not including servers where others can also access the program)”
+(<a href="https://pages.nist.gov/REFPROP-docs/">REFPROP FAQ</a>). NIST
+also says the license “applies to you, not for your computer” (<a
+href="https://github.com/usnistgov/REFPROP-issues/issues/227">REFPROP-issues
+#227</a>). It doesn’t cover this Cloud Run deployment, but it would
+cover the owner running the model on his own computer. The single-user
+price isn’t in the documents below; see the <a
+href="https://shop.nist.gov/ccrz__ProductDetails?sku=SRD23V10&amp;cclcl=en_US">NIST
+store</a>.</p></li>
+<li><p>Site license: allows “Internet accessible applications providing
+the application is restricted to only Named Users”, so the app would
+need a login. One-time fees, 25 named users minimum:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr class="header">
+<th>Named users</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>25</td>
+<td>$292 per user</td>
+<td>$7,300</td>
+</tr>
+<tr class="even">
+<td>26–50</td>
+<td>$260 × users + $800</td>
+<td><span class="math inline">7, 560–</span>13,800</td>
+</tr>
+<tr class="odd">
+<td>51–75</td>
+<td>$227 × users + $2,450</td>
+<td><span class="math inline">14, 027–</span>19,475</td>
+</tr>
+<tr class="even">
+<td>Over 75</td>
+<td>flat fee</td>
+<td>$19,670</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Existing site-license customers get 50 % off.</p></li>
+<li><p>Public Internet access requires a separate NIST Distribution
+Agreement (price not published).</p></li>
+<li><p>Source: <a
+href="https://www.nist.gov/system/files/documents/2024/08/14/NIST%20REFPROP%20v10%20Site%20License%20Agreement_Web_2024-05-23.pdf">NIST
+REFPROP v10 Site License Agreement</a> (version 23SLV10-20240523-01); <a
+href="https://shop.nist.gov/ccrz__ProductDetails?sku=SRD23SLV10&amp;cclcl=en_US">NIST
+store, site license</a>. NIST contact: Standard Reference Data,
+301-975-2205.</p></li>
+</ul></li>
+</ul></li>
 </ul>
 <h2 id="phase-2--unit-operations-2026-09-25">Phase 2 — unit operations
 (2026-09-25)</h2>
@@ -775,13 +870,12 @@ total with each turbine below it, and a pumps total with each pump below
 it. Turbine rows are electric output (shaft power × generator efficiency
 0.97); pump rows are electricity used (motor efficiency 1.0 by default,
 D26). A test checks that the rows add up for every figure.</p></li>
-<li><p><strong>D87 — Turbine inlet temperatures</strong> (inventor’s
-question, 2026-09-28: “How did Claude pick the turbine inlet
-temperatures?”). Each turbine inlet is either an <strong>input</strong>
-(a default chosen in this project, editable under All inputs) or
-<strong>calculated</strong> by the solver from other inputs. The patent
-states few inlet temperatures directly; its ranges are cited where they
-informed a choice. Values are at default inputs.</p>
+<li><p><strong>D87 — Turbine inlet temperatures.</strong> Each turbine
+inlet is either an <strong>input</strong> (a default chosen in this
+project, editable under All inputs) or <strong>calculated</strong> by
+the solver from other inputs. The patent states few inlet temperatures
+directly; its ranges are cited where they informed a choice. Values are
+at default inputs.</p>
 <div class="table-wrap">
 <table>
 <thead>
